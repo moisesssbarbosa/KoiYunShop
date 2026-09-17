@@ -10,12 +10,14 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
+import factory.ConexaoDB;
+
 public class VendaDAO {
 
     private Connection conexao;
 
-    public VendaDAO(Connection conexao) {
-        this.conexao = conexao;
+    public VendaDAO() throws SQLException {
+        this.conexao = ConexaoDB.getConexao();
     }
 
     // 1. INSERIR (Retorna o id_venda gerado para usar no VendaItemDAO)

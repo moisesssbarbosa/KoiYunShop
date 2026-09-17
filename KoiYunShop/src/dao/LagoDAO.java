@@ -8,12 +8,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import factory.ConexaoDB;
+
 public class LagoDAO {
 
     private Connection conexao;
 
-    public LagoDAO(Connection conexao) {
-        this.conexao = conexao;
+    public LagoDAO() throws SQLException {
+        this.conexao = ConexaoDB.getConexao();
     }
 
     // 1. INSERIR (Create)

@@ -9,12 +9,14 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
+import factory.ConexaoDB;
+
 public class PeixeDAO {
 
     private Connection conexao;
-
-    public PeixeDAO(Connection conexao) {
-        this.conexao = conexao;
+    
+    public PeixeDAO() throws SQLException {
+        this.conexao = ConexaoDB.getConexao();
     }
 
     // 1. INSERIR (Create)

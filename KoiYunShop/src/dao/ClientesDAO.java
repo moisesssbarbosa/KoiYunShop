@@ -6,12 +6,14 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import factory.ConexaoDB;
+
 public class ClientesDAO {
     private Connection conexao;
 
     // Construtor que recebe a conexão por parâmetro
-    public ClientesDAO(Connection conexao) {
-        this.conexao = conexao;
+    public ClientesDAO() throws SQLException {
+        this.conexao = ConexaoDB.getConexao();
     }
 
     // 1. INSERIR (Create)
