@@ -2,6 +2,8 @@ package janelas;
 
 import dao.ClientesDAO;
 import modelo.Cliente;
+import dao.InsumoDAO;
+import modelo.Insumo;
 
 import javax.swing.*;
 import java.awt.*;
