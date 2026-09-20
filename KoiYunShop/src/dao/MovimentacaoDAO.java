@@ -1,3 +1,6 @@
+package dao;
+
+import modelo.Movimentacao;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -8,16 +11,18 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
+import factory.ConexaoDB;
+
 public class MovimentacaoDAO {
 
     private Connection connection;
 
-    public MovimentacaoDAO(Connection connection) {
-        this.connection = connection;
+    public MovimentacaoDAO() throws SQLException {
+        this.connection = ConexaoDB.getConexao();
     }
 
     // CREATE
-    public void cadastrar(Movimentacao movimentacao) throws SQLException {
+    public void salvar(Movimentacao movimentacao) throws SQLException {
         String sql = "INSERT INTO movimentacoes (data_movimentacao, categoria, descricao, id_insumo_fk, valor) VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {

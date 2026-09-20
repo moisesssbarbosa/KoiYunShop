@@ -17,7 +17,7 @@ public class ClientesDAO {
     }
 
     // 1. INSERIR (Create)
-    public void inserir(Cliente cliente) throws SQLException {
+    public void salvar(Cliente cliente) throws SQLException {
         String sql = "INSERT INTO clientes (nome, cpf_cnpj, telefone, email, cidade_estado) VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {

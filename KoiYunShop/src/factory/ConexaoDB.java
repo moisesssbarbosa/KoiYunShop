@@ -7,8 +7,8 @@ import java.sql.SQLException;
 public class ConexaoDB {
 
     // Configurações do seu banco de dados
-    private static final String URL = "jdbc:mysql://localhost:3306/koiyunshop?useSSL=false&serverTimezone=UTC";
-    private static final String USUARIO = "root";
+    private static final String URL = "jdbc:postgresql://localhost:5432/koiyunshop";
+    private static final String USUARIO = "postgres";
     private static final String SENHA = "1234";
 
     // Método responsável por estabelecer e retornar a conexão

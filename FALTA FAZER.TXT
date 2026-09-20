@@ -1,0 +1,2 @@
+1. janela principal com filtro dinamico 
+2. JInternal pra mostrar a tabela e os botões do das coisas

@@ -1,3 +1,7 @@
+package dao;
+
+import modelo.Insumo;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -5,16 +9,18 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import factory.ConexaoDB;
+
 public class InsumoDAO {
 
     private Connection connection;
 
-    public InsumoDAO(Connection connection) {
-        this.connection = connection;
+    public InsumoDAO() throws SQLException {
+        this.connection = ConexaoDB.getConexao();
     }
 
     // CREATE
-    public void cadastrar(Insumo insumo) throws SQLException {
+    public void salvar(Insumo insumo) throws SQLException {
         String sql = "INSERT INTO insumos (nome_insumo, quantidade_atual_kg, quantidade_minima_alerta, preco_custo_por_kg) VALUES (?, ?, ?, ?)";
         
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
