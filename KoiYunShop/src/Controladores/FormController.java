@@ -1,4 +1,4 @@
-package Controladores;
+package controladores;
 
 import dao.*;
 import modelo.*;
@@ -457,15 +457,19 @@ public class FormController {
         }
 
         try {
-            // 2. Tratamento e conversão dos dados
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            // 2. Tratamento e conversão dos dados (Corrigido para o formato AAAA-MM-DD do FormVenda)
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             sdf.setLenient(false);
-            Date dataVenda = sdf.parse(form.getDataVenda());
+            java.util.Date dataUtil = sdf.parse(form.getDataVenda());
+            // Se o seu VendaDAO usar java.sql.Date, você pode converter assim:
+            java.sql.Date dataVenda = new java.sql.Date(dataUtil.getTime());
 
-            BigDecimal valorTotal = new BigDecimal(form.getValorTotal().replace(".", "").replace(",", "."));
+            // Corrigido: O FormVenda.getValorTotal() já converte vírgula para ponto.
+            BigDecimal valorTotal = new BigDecimal(form.getValorTotal());
+            
             String formaPagamento = form.getFormaPagamento();
             String statusEntrega = form.getStatusEntrega();
-            int idCliente = Integer.parseInt(form.getIdClienteFk().trim());
+            int idCliente = Integer.parseInt(form.getIdClienteFk());
 
             // 3. Montagem do modelo Venda
             Venda venda = new Venda();
@@ -494,7 +498,7 @@ public class FormController {
         } catch (ParseException e) {
             JOptionPane.showMessageDialog(
                 modal, 
-                "Data de venda inválida! Utilize o formato dd/MM/yyyy.", 
+                "Data de venda inválida! Utilize o formato AAAA-MM-DD (Ex: 2024-12-31).", 
                 "Erro na Data", 
                 JOptionPane.ERROR_MESSAGE
             );

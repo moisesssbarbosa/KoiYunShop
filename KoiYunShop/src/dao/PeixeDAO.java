@@ -95,6 +95,23 @@ public class PeixeDAO {
         return null;
     }
 
+    public List<Peixe> buscarPorVariedade(String variedade) throws SQLException {
+        String sql = "SELECT * FROM peixes WHERE variedade LIKE ?";
+        List<Peixe> lista = new ArrayList<>();
+
+        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+            // Os '%' permitem buscar substrings, ex: "koha" encontra "Kohaku"
+            stmt.setString(1, "%" + variedade + "%");
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapearPeixe(rs));
+                }
+            }
+        }
+        return lista;
+    }
+
     // 6. BUSCAR PEIXES POR LAGO (BuscarPorLago)
     public List<Peixe> buscarPorLago(int idLagoFk) throws SQLException {
         String sql = "SELECT * FROM peixes WHERE id_lago_fk = ?";

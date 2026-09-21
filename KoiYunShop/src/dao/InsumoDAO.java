@@ -54,6 +54,32 @@ public class InsumoDAO {
         return insumo;
     }
 
+    // READ (Buscar por nome - Filtro da tabela)
+    public List<Insumo> buscarInsumoPorNome(String nome) throws SQLException {
+        List<Insumo> lista = new ArrayList<>();
+        // O operador LIKE permite buscas parciais no banco de dados
+        String sql = "SELECT * FROM insumos WHERE nome_insumo LIKE ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            // Os sinais de % indicam que o texto pode ter qualquer coisa antes ou depois
+            stmt.setString(1, "%" + nome + "%");
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Insumo insumo = new Insumo(
+                        rs.getInt("id_insumo"),
+                        rs.getString("nome_insumo"),
+                        rs.getBigDecimal("quantidade_atual_kg"),
+                        rs.getBigDecimal("quantidade_minima_alerta"),
+                        rs.getBigDecimal("preco_custo_por_kg")
+                    );
+                    lista.add(insumo);
+                }
+            }
+        }
+        return lista;
+    }
+
     // READ (Listar todos)
     public List<Insumo> listarTodos() throws SQLException {
         List<Insumo> lista = new ArrayList<>();

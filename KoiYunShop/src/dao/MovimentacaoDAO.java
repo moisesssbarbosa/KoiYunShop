@@ -65,6 +65,33 @@ public class MovimentacaoDAO {
         return movimentacao;
     }
 
+    public List<Movimentacao> buscarPorDescricao(String descricaoBusca) throws SQLException {
+        List<Movimentacao> lista = new ArrayList<>();
+        // O operador LIKE permite buscar partes do texto
+        String sql = "SELECT * FROM movimentacoes WHERE descricao LIKE ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            // Adiciona os curingas '%' antes e depois do termo pesquisado
+            stmt.setString(1, "%" + descricaoBusca + "%");
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    // Preenche a lista mantendo a exata ordem do seu construtor
+                    Movimentacao movimentacao = new Movimentacao(
+                        rs.getInt("id_movimentacao"),
+                        rs.getDate("data_movimentacao"),
+                        rs.getBigDecimal("valor"),
+                        rs.getString("categoria"),
+                        rs.getString("descricao"),
+                        rs.getInt("id_insumo_fk")
+                    );
+                    lista.add(movimentacao);
+                }
+            }
+        }
+        return lista;
+    }
+
     // READ (Listar todos)
     public List<Movimentacao> listarTodos() throws SQLException {
         List<Movimentacao> lista = new ArrayList<>();

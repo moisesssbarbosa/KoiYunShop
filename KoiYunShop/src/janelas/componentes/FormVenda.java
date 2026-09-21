@@ -82,6 +82,12 @@ public class FormVenda extends JPanel {
         return txtIdClienteFk.getText().trim();
     }
 
+    // Método para preencher apenas o cliente numa NOVA venda
+    public void preencherCliente(String idCliente) {
+        this.txtIdClienteFk.setText(idCliente);
+        this.txtIdClienteFk.setEditable(false); // Opcional: bloqueia o campo para o usuário não digitar o ID errado sem querer
+    }
+
     // Reseta de volta para modo "Novo Cadastro"
     public void limparCampos() {
         this.idVendaEmEdicao = null;
