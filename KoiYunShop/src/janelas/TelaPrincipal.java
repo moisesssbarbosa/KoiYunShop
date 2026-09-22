@@ -56,6 +56,8 @@ public class TelaPrincipal extends JFrame {
         painelConteudo.add(new PainelLago(), "tela_lagos");
         painelConteudo.add(new PainelVenda(), "tela_vendas");
         painelConteudo.add(new PainelItemVenda(), "tela_itens_venda");
+        painelConteudo.add(new PainelInsumo(), "tela_insumo");
+        painelConteudo.add(new PainelMovimentacao(), "tela_movimentacao");
 
         add(painelConteudo, BorderLayout.CENTER);
 
@@ -99,6 +101,8 @@ public class TelaPrincipal extends JFrame {
         JButton btnLagos = criarBotaoMenu("Lagos");
         JButton btnVendas = criarBotaoMenu("Vendas");
         JButton btnItensVenda = criarBotaoMenu("Itens da Venda");
+        JButton btnInsumo = criarBotaoMenu("Insumos");
+        JButton btnMovimentacao = criarBotaoMenu("Movimentações");
 
         // Adicionando ao menu com espaçamento
         painelMenu.add(btnPeixes);
@@ -110,6 +114,11 @@ public class TelaPrincipal extends JFrame {
         painelMenu.add(btnVendas);
         painelMenu.add(Box.createVerticalStrut(10));
         painelMenu.add(btnItensVenda);
+        painelMenu.add(Box.createVerticalStrut(10));
+        painelMenu.add(btnInsumo);
+        painelMenu.add(Box.createVerticalStrut(10));
+        painelMenu.add(btnMovimentacao);
+        
 
         // Ações de clique para trocar os cards
         btnPeixes.addActionListener(e -> cardLayout.show(painelConteudo, "tela_peixes"));
@@ -117,6 +126,8 @@ public class TelaPrincipal extends JFrame {
         btnLagos.addActionListener(e -> cardLayout.show(painelConteudo, "tela_lagos"));
         btnVendas.addActionListener(e -> cardLayout.show(painelConteudo, "tela_vendas"));
         btnItensVenda.addActionListener(e -> cardLayout.show(painelConteudo, "tela_itens_venda"));
+        btnInsumo.addActionListener(e -> cardLayout.show(painelConteudo, "tela_insumo"));
+        btnMovimentacao.addActionListener(e -> cardLayout.show(painelConteudo, "tela_movimentacao"));
 
         return painelMenu;
     }
