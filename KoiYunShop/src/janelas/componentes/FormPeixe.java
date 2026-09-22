@@ -1,5 +1,6 @@
 package janelas.componentes;
 
+import janelas.estilos.TemaKoi;
 import javax.swing.*;
 import java.awt.*;
 
@@ -15,45 +16,67 @@ public class FormPeixe extends JPanel {
     private Integer idPeixeEmEdicao = null;
 
     public FormPeixe() {
-        // Layout em Grade: 7 linhas (uma para cada campo inserível) x 2 colunas
-        setLayout(new GridLayout(7, 2, 8, 8));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // Fundo do painel padronizado
+        setBackground(TemaKoi.COR_FUNDO_TELA);
+
+        // Layout de grade ajustado para 7 linhas x 2 colunas com espaçamentos adequados
+        setLayout(new GridLayout(7, 2, 10, 12));
+        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         // Instanciação dos campos
         txtCodigoVerificador = new JTextField();
         txtVariedade = new JTextField();
-        
-        // Campo de data com valor atual preenchido como sugestão (AAAA-MM-DD)
         txtDataEntrada = new JTextField(java.time.LocalDate.now().toString()); 
-        
         txtTamanho = new JTextField();
         txtPrecoVenda = new JTextField();
-        
-        // Opções para o campo status VARCHAR(10)
         cbStatus = new JComboBox<>(new String[]{"DISPONIVEL", "VENDIDO", "QUARENTENA"});
-        
         txtIdLagoFk = new JTextField();
 
+        // Aplicação do estilo nos campos de texto
+        TemaKoi.estilizarCampoTexto(txtCodigoVerificador);
+        TemaKoi.estilizarCampoTexto(txtVariedade);
+        TemaKoi.estilizarCampoTexto(txtDataEntrada);
+        TemaKoi.estilizarCampoTexto(txtTamanho);
+        TemaKoi.estilizarCampoTexto(txtPrecoVenda);
+        TemaKoi.estilizarCampoTexto(txtIdLagoFk);
+
+        // Criando e estilizando os rótulos (Labels)
+        JLabel lblCodigoVerificador = new JLabel("Cód. Verificador:");
+        JLabel lblVariedade = new JLabel("Variedade:");
+        JLabel lblDataEntrada = new JLabel("Data Entrada (AAAA-MM-DD):");
+        JLabel lblTamanho = new JLabel("Tamanho (cm):");
+        JLabel lblPrecoVenda = new JLabel("Preço Venda (R$):");
+        JLabel lblStatus = new JLabel("Status:");
+        JLabel lblIdLagoFk = new JLabel("ID Lago (FK):");
+
+        TemaKoi.estilizarLabel(lblCodigoVerificador);
+        TemaKoi.estilizarLabel(lblVariedade);
+        TemaKoi.estilizarLabel(lblDataEntrada);
+        TemaKoi.estilizarLabel(lblTamanho);
+        TemaKoi.estilizarLabel(lblPrecoVenda);
+        TemaKoi.estilizarLabel(lblStatus);
+        TemaKoi.estilizarLabel(lblIdLagoFk);
+
         // Adição dos rótulos e componentes ao formulário
-        add(new JLabel("Cód. Verificador:"));
+        add(lblCodigoVerificador);
         add(txtCodigoVerificador);
 
-        add(new JLabel("Variedade:"));
+        add(lblVariedade);
         add(txtVariedade);
 
-        add(new JLabel("Data Entrada (AAAA-MM-DD):"));
+        add(lblDataEntrada);
         add(txtDataEntrada);
 
-        add(new JLabel("Tamanho (cm):"));
+        add(lblTamanho);
         add(txtTamanho);
 
-        add(new JLabel("Preço Venda (R$):"));
+        add(lblPrecoVenda);
         add(txtPrecoVenda);
 
-        add(new JLabel("Status:"));
+        add(lblStatus);
         add(cbStatus);
 
-        add(new JLabel("ID Lago (FK):"));
+        add(lblIdLagoFk);
         add(txtIdLagoFk);
     }
 
@@ -108,9 +131,9 @@ public class FormPeixe extends JPanel {
         return txtIdLagoFk.getText().trim();
     }
 
-    // Atualize o método limparCampos() para zerar o ID também!
+    // Reseta de volta para modo "Novo Cadastro"
     public void limparCampos() {
-        this.idPeixeEmEdicao = null; // Reseta de volta para modo "Novo Cadastro"
+        this.idPeixeEmEdicao = null;
         txtCodigoVerificador.setText("");
         txtVariedade.setText("");
         txtDataEntrada.setText(java.time.LocalDate.now().toString());
@@ -122,10 +145,10 @@ public class FormPeixe extends JPanel {
 
     public boolean isCamposValidos() {
         return !txtCodigoVerificador.getText().trim().isEmpty() &&
-            !txtVariedade.getText().trim().isEmpty() &&
-            !txtDataEntrada.getText().trim().isEmpty() &&
-            !txtTamanho.getText().trim().isEmpty() &&
-            !txtPrecoVenda.getText().trim().isEmpty() &&
-            !txtIdLagoFk.getText().trim().isEmpty();
+               !txtVariedade.getText().trim().isEmpty() &&
+               !txtDataEntrada.getText().trim().isEmpty() &&
+               !txtTamanho.getText().trim().isEmpty() &&
+               !txtPrecoVenda.getText().trim().isEmpty() &&
+               !txtIdLagoFk.getText().trim().isEmpty();
     }
 }

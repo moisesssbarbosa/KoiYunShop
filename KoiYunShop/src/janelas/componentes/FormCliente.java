@@ -1,5 +1,6 @@
 package janelas.componentes;
 
+import janelas.estilos.TemaKoi;
 import javax.swing.*;
 import java.awt.*;
 
@@ -13,9 +14,12 @@ public class FormCliente extends JPanel {
     private Integer idClienteEmEdicao = null;
 
     public FormCliente() {
-        // Layout em Grade: 5 linhas (uma para cada campo inserível) x 2 colunas
-        setLayout(new GridLayout(5, 2, 8, 8));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // Fundo do painel padronizado
+        setBackground(TemaKoi.COR_FUNDO_TELA);
+
+        // Layout de grade ajustado para acomodar melhor os componentes maiores
+        setLayout(new GridLayout(5, 2, 10, 12));
+        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         // Instanciação dos campos
         txtNome = new JTextField();
@@ -24,20 +28,40 @@ public class FormCliente extends JPanel {
         txtEmail = new JTextField();
         txtCidadeEstado = new JTextField();
 
-        // Adição dos rótulos e componentes ao formulário
-        add(new JLabel("Nome:"));
+        // Aplicação do estilo nos campos de texto
+        TemaKoi.estilizarCampoTexto(txtNome);
+        TemaKoi.estilizarCampoTexto(txtCpfCnpj);
+        TemaKoi.estilizarCampoTexto(txtTelefone);
+        TemaKoi.estilizarCampoTexto(txtEmail);
+        TemaKoi.estilizarCampoTexto(txtCidadeEstado);
+
+        // Criando e estilizando os rótulos (Labels)
+        JLabel lblNome = new JLabel("Nome:");
+        JLabel lblCpfCnpj = new JLabel("CPF/CNPJ:");
+        JLabel lblTelefone = new JLabel("Telefone:");
+        JLabel lblEmail = new JLabel("E-mail:");
+        JLabel lblCidadeEstado = new JLabel("Cidade/Estado:");
+
+        TemaKoi.estilizarLabel(lblNome);
+        TemaKoi.estilizarLabel(lblCpfCnpj);
+        TemaKoi.estilizarLabel(lblTelefone);
+        TemaKoi.estilizarLabel(lblEmail);
+        TemaKoi.estilizarLabel(lblCidadeEstado);
+
+        // Adição dos componentes ao formulário
+        add(lblNome);
         add(txtNome);
 
-        add(new JLabel("CPF/CNPJ:"));
+        add(lblCpfCnpj);
         add(txtCpfCnpj);
 
-        add(new JLabel("Telefone:"));
+        add(lblTelefone);
         add(txtTelefone);
 
-        add(new JLabel("E-mail:"));
+        add(lblEmail);
         add(txtEmail);
 
-        add(new JLabel("Cidade/Estado:"));
+        add(lblCidadeEstado);
         add(txtCidadeEstado);
     }
 

@@ -5,6 +5,7 @@ import janelas.ModalCadastroBase;
 import janelas.componentes.FormPeixe;
 import modelo.Peixe;
 import controladores.FormController;
+import janelas.estilos.TemaKoi;  // Import da classe de estilização
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -29,15 +30,15 @@ public class PainelPeixe extends JPanel {
     // Controle de Seleção
     private JPanel cardSelecionado = null;
     private Peixe peixeSelecionado = null;
-    private Border bordaNormal = BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1);
-    private Border bordaSelecionada = BorderFactory.createLineBorder(new Color(255, 102, 0), 3); // Borda Laranja Koi quando selecionado
+    private Border bordaNormal = BorderFactory.createLineBorder(new Color(220, 220, 220), 1);
+    private Border bordaSelecionada = BorderFactory.createLineBorder(TemaKoi.COR_LARANJA, 3); // Borda Laranja Koi quando selecionado
 
     public PainelPeixe() {
-        setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        setBackground(new Color(245, 245, 245)); // Fundo combinando com a tela principal
+        setLayout(new BorderLayout(15, 15));
+        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        setBackground(TemaKoi.COR_FUNDO_TELA);
 
-        // 1. Painel Superior (Botões CRUD + Pesquisa)
+        // 1. Painel Superior (Botões CRUD + Barra de Pesquisa)
         add(criarPainelTopo(), BorderLayout.NORTH);
 
         // 2. Painel Central (Catálogo de Cards)
@@ -48,40 +49,55 @@ public class PainelPeixe extends JPanel {
     }
 
     private JPanel criarPainelTopo() {
-        JPanel painelTopo = new JPanel(new BorderLayout());
+        JPanel painelTopo = new JPanel();
+        painelTopo.setLayout(new BoxLayout(painelTopo, BoxLayout.Y_AXIS));
         painelTopo.setOpaque(false);
 
-        // Linha 1: Botões de Ação (CRUD) dispostos horizontalmente
-        JPanel painelAcoes = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        painelAcoes.setOpaque(false);
+        // --- LINHA 1: BOTÕES DE AÇÃO (CRUD) NO TOPO ---
+        JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        painelBotoes.setOpaque(false);
 
-        btnNovo = new JButton("Novo Peixe");
+        btnNovo = new JButton("+ Novo Peixe");
         btnEditar = new JButton("Editar");
         btnExcluir = new JButton("Excluir");
         btnAtualizar = new JButton("Atualizar Catálogo");
 
-        painelAcoes.add(btnNovo);
-        painelAcoes.add(btnEditar);
-        painelAcoes.add(btnExcluir);
-        painelAcoes.add(btnAtualizar);
+        // Aplicação da Estilização TemaKoi nos Botões
+        TemaKoi.estilizarBotaoCrud(btnNovo, TemaKoi.COR_VERDE);
+        TemaKoi.estilizarBotaoCrud(btnEditar, TemaKoi.COR_AZUL);
+        TemaKoi.estilizarBotaoCrud(btnExcluir, TemaKoi.COR_VERMELHO);
+        TemaKoi.estilizarBotaoCrud(btnAtualizar, new Color(108, 117, 125)); // Cinza neutro
 
-        // Linha 2: Barra de Pesquisa
-        JPanel painelBusca = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 15));
+        painelBotoes.add(btnNovo);
+        painelBotoes.add(btnEditar);
+        painelBotoes.add(btnExcluir);
+        painelBotoes.add(btnAtualizar);
+
+        // --- LINHA 2: BARRA DE PESQUISA ---
+        JPanel painelBusca = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         painelBusca.setOpaque(false);
-        painelBusca.add(new JLabel("Filtrar por Variedade (Ex: Kohaku):"));
-        
-        txtPesquisa = new JTextField(30);
+
+        JLabel lblPesquisa = new JLabel("Filtrar por Variedade (Ex: Kohaku):");
+        lblPesquisa.setFont(TemaKoi.FONTE_INPUTS);
+        lblPesquisa.setForeground(TemaKoi.COR_TEXTO_ESCURO);
+
+        txtPesquisa = new JTextField(25);
+        TemaKoi.estilizarCampoTexto(txtPesquisa);
+
         txtPesquisa.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 filtrarCatalogo(txtPesquisa.getText());
             }
         });
+
+        painelBusca.add(lblPesquisa);
         painelBusca.add(txtPesquisa);
 
-        // Adicionando as duas linhas no painel de topo
-        painelTopo.add(painelAcoes, BorderLayout.NORTH);
-        painelTopo.add(painelBusca, BorderLayout.CENTER);
+        // Adiciona as duas linhas no container superior
+        painelTopo.add(painelBotoes);
+        painelTopo.add(Box.createVerticalStrut(5));
+        painelTopo.add(painelBusca);
 
         // Eventos dos Botões
         btnNovo.addActionListener(e -> abrirModalCadastro(null));
@@ -100,12 +116,12 @@ public class PainelPeixe extends JPanel {
         // JScrollPane para permitir rolagem
         JScrollPane scrollPane = new JScrollPane(painelCatalogo);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        scrollPane.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY)); // Borda sutil no catálogo
-        
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+
         return scrollPane;
     }
 
-    // --- LÓGICA DE CARREGAMENTO DOS CARDS ---
+    // --- LÓGICA DE CARREGAMENTO DOS CARDS (MANTIDA 100% INTACTA) ---
 
     public void carregarCatalogo() {
         try {
@@ -123,6 +139,7 @@ public class PainelPeixe extends JPanel {
             List<Peixe> lista = termo.trim().isEmpty() ? dao.listarTodos() : dao.buscarPorVariedade(termo);
             renderizarCards(lista);
         } catch (SQLException e) {
+            // Falha silenciosa para a busca em tempo real não travar a tela
         }
     }
 
@@ -149,19 +166,25 @@ public class PainelPeixe extends JPanel {
 
         JLabel lblImagem = new JLabel(carregarImagemVariedade(peixe.getVariedade()));
         lblImagem.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
-        JLabel lblCod = new JLabel("Cód: " + peixe.getCodigoIdentificador()); // Ajustado para o nome do seu Getter
-        lblCod.setFont(new Font("Arial", Font.BOLD, 12));
+
+        JLabel lblCod = new JLabel("Cód: " + peixe.getCodigoIdentificador());
+        lblCod.setFont(TemaKoi.FONTE_BOTOES);
+        lblCod.setForeground(TemaKoi.COR_TEXTO_ESCURO);
         lblCod.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel lblVar = new JLabel(peixe.getVariedade());
+        lblVar.setFont(TemaKoi.FONTE_INPUTS);
+        lblVar.setForeground(TemaKoi.COR_TEXTO_ESCURO);
         lblVar.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel lblTamanho = new JLabel("Tam: " + peixe.getTamanhoCm() + "cm"); // Ajustado para o nome do seu Getter
+        JLabel lblTamanho = new JLabel("Tam: " + peixe.getTamanhoCm() + "cm");
+        lblTamanho.setFont(TemaKoi.FONTE_INPUTS);
+        lblTamanho.setForeground(Color.GRAY);
         lblTamanho.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel lblPreco = new JLabel("R$ " + peixe.getPrecoVenda());
-        lblPreco.setForeground(new Color(0, 128, 0));
+        lblPreco.setFont(TemaKoi.FONTE_BOTOES);
+        lblPreco.setForeground(TemaKoi.COR_VERDE);
         lblPreco.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         card.add(Box.createVerticalStrut(10));
@@ -215,7 +238,7 @@ public class PainelPeixe extends JPanel {
         g2d.setColor(new Color(220, 220, 220));
         g2d.fillRoundRect(0, 0, 100, 100, 15, 15);
         g2d.setColor(Color.DARK_GRAY);
-        
+
         String sigla = texto.length() >= 3 ? texto.substring(0, 3).toUpperCase() : "P/X";
         g2d.setFont(new Font("Segoe UI", Font.BOLD, 24));
         FontMetrics fm = g2d.getFontMetrics();
@@ -223,7 +246,7 @@ public class PainelPeixe extends JPanel {
         int y = ((100 - fm.getHeight()) / 2) + fm.getAscent();
         g2d.drawString(sigla, x, y);
         g2d.dispose();
-        
+
         return new ImageIcon(img);
     }
 
@@ -235,13 +258,13 @@ public class PainelPeixe extends JPanel {
         if (peixeEditar != null) {
             formPeixe.carregarDadosParaEdicao(
                 peixeEditar.getIdPeixe(),
-                String.valueOf(peixeEditar.getCodigoIdentificador()), // Getter atualizado
+                String.valueOf(peixeEditar.getCodigoIdentificador()),
                 peixeEditar.getVariedade(),
                 String.valueOf(peixeEditar.getDataEntrada()),
-                String.valueOf(peixeEditar.getTamanhoCm()), // Getter atualizado
+                String.valueOf(peixeEditar.getTamanhoCm()),
                 String.valueOf(peixeEditar.getPrecoVenda()),
                 peixeEditar.getStatus(),
-                String.valueOf(peixeEditar.getIdLago()) // Getter atualizado
+                String.valueOf(peixeEditar.getIdLago())
             );
         }
 

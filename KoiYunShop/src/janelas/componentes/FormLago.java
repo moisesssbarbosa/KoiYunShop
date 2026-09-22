@@ -1,5 +1,6 @@
 package janelas.componentes;
 
+import janelas.estilos.TemaKoi;
 import javax.swing.*;
 import java.awt.*;
 
@@ -13,9 +14,12 @@ public class FormLago extends JPanel {
     private Integer idLagoEmEdicao = null;
 
     public FormLago() {
-        // Layout em Grade: 5 linhas (uma para cada campo inserível) x 2 colunas
-        setLayout(new GridLayout(5, 2, 8, 8));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // Fundo do painel padronizado
+        setBackground(TemaKoi.COR_FUNDO_TELA);
+
+        // Layout de grade ajustado para 5 linhas x 2 colunas com espaçamentos adequados
+        setLayout(new GridLayout(5, 2, 10, 12));
+        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         // Instanciação dos campos
         txtNomeLago = new JTextField();
@@ -24,20 +28,40 @@ public class FormLago extends JPanel {
         txtStatusAgua = new JTextField();
         txtTemperatura = new JTextField();
 
+        // Aplicação do estilo nos campos de texto
+        TemaKoi.estilizarCampoTexto(txtNomeLago);
+        TemaKoi.estilizarCampoTexto(txtCapacidadeLitros);
+        TemaKoi.estilizarCampoTexto(txtTipo);
+        TemaKoi.estilizarCampoTexto(txtStatusAgua);
+        TemaKoi.estilizarCampoTexto(txtTemperatura);
+
+        // Criando e estilizando os rótulos (Labels)
+        JLabel lblNomeLago = new JLabel("Nome do Lago:");
+        JLabel lblCapacidadeLitros = new JLabel("Capacidade (L):");
+        JLabel lblTipo = new JLabel("Tipo:");
+        JLabel lblStatusAgua = new JLabel("Status da Água:");
+        JLabel lblTemperatura = new JLabel("Temperatura (°C):");
+
+        TemaKoi.estilizarLabel(lblNomeLago);
+        TemaKoi.estilizarLabel(lblCapacidadeLitros);
+        TemaKoi.estilizarLabel(lblTipo);
+        TemaKoi.estilizarLabel(lblStatusAgua);
+        TemaKoi.estilizarLabel(lblTemperatura);
+
         // Adição dos rótulos e componentes ao formulário
-        add(new JLabel("Nome do Lago:"));
+        add(lblNomeLago);
         add(txtNomeLago);
 
-        add(new JLabel("Capacidade (L):"));
+        add(lblCapacidadeLitros);
         add(txtCapacidadeLitros);
 
-        add(new JLabel("Tipo:"));
+        add(lblTipo);
         add(txtTipo);
 
-        add(new JLabel("Status da Água:"));
+        add(lblStatusAgua);
         add(txtStatusAgua);
 
-        add(new JLabel("Temperatura (°C):"));
+        add(lblTemperatura);
         add(txtTemperatura);
     }
 

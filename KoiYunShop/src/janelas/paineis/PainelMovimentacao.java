@@ -1,10 +1,11 @@
 package janelas.paineis;
 
-import dao.MovimentacaoDAO; // Certifique-se de que o pacote e nome estão corretos
+import dao.MovimentacaoDAO;
 import janelas.ModalCadastroBase;
 import janelas.componentes.FormMovimentacao;
-import modelo.Movimentacao; // Certifique-se de que o pacote e nome estão corretos
+import modelo.Movimentacao;
 import controladores.FormController;
+import janelas.estilos.TemaKoi; // Import da classe de estilização
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -27,64 +28,56 @@ public class PainelMovimentacao extends JPanel {
     private JButton btnAtualizar;
 
     public PainelMovimentacao() {
-        setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setLayout(new BorderLayout(15, 15));
+        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        setBackground(TemaKoi.COR_FUNDO_TELA);
 
-        // 1. Painel Esquerdo (Botões e Ações)
-        add(criarPainelEsquerdo(), BorderLayout.WEST);
+        // 1. Painel Superior (Botões CRUD + Barra de Pesquisa)
+        add(criarPainelTopo(), BorderLayout.NORTH);
 
-        // 2. Painel Direito (Pesquisa + Tabela)
-        add(criarPainelDireito(), BorderLayout.CENTER);
+        // 2. Painel Central (Tabela de Movimentações)
+        add(criarPainelTabela(), BorderLayout.CENTER);
 
         // 3. Carrega os dados iniciais do banco
         carregarTabela();
     }
 
-    private JPanel criarPainelEsquerdo() {
-        JPanel painel = new JPanel();
-        painel.setLayout(new BoxLayout(painel, BoxLayout.Y_AXIS));
-        painel.setPreferredSize(new Dimension(180, 0));
+    private JPanel criarPainelTopo() {
+        JPanel painelTopo = new JPanel();
+        painelTopo.setLayout(new BoxLayout(painelTopo, BoxLayout.Y_AXIS));
+        painelTopo.setOpaque(false);
 
-        // Criando os botões
-        btnNovo = new JButton("Nova Movimentação");
+        // --- LINHA 1: BOTÕES DE AÇÃO (CRUD) NO TOPO ---
+        JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        painelBotoes.setOpaque(false);
+
+        btnNovo = new JButton("+ Nova Movimentação");
         btnEditar = new JButton("Editar");
         btnExcluir = new JButton("Excluir");
         btnAtualizar = new JButton("Atualizar Tabela");
 
-        // Estilizando larguras
-        Dimension maxDim = new Dimension(170, 35);
-        btnNovo.setMaximumSize(maxDim);
-        btnEditar.setMaximumSize(maxDim);
-        btnExcluir.setMaximumSize(maxDim);
-        btnAtualizar.setMaximumSize(maxDim);
+        // Aplicação da Estilização TemaKoi nos Botões
+        TemaKoi.estilizarBotaoCrud(btnNovo, TemaKoi.COR_VERDE);
+        TemaKoi.estilizarBotaoCrud(btnEditar, TemaKoi.COR_AZUL);
+        TemaKoi.estilizarBotaoCrud(btnExcluir, TemaKoi.COR_VERMELHO);
+        TemaKoi.estilizarBotaoCrud(btnAtualizar, new Color(108, 117, 125)); // Cinza neutro
 
-        // Adicionando componentes
-        painel.add(btnNovo);
-        painel.add(Box.createVerticalStrut(8));
-        painel.add(btnEditar);
-        painel.add(Box.createVerticalStrut(8));
-        painel.add(btnExcluir);
-        painel.add(Box.createVerticalStrut(8));
-        painel.add(btnAtualizar);
+        painelBotoes.add(btnNovo);
+        painelBotoes.add(btnEditar);
+        painelBotoes.add(btnExcluir);
+        painelBotoes.add(btnAtualizar);
 
-        // --- EVENTOS DOS BOTÕES ---
-        btnNovo.addActionListener(e -> abrirModalCadastro(null));
-        btnEditar.addActionListener(e -> editarSelecionado());
-        btnExcluir.addActionListener(e -> excluirSelecionado());
-        btnAtualizar.addActionListener(e -> carregarTabela());
+        // --- LINHA 2: BARRA DE PESQUISA ---
+        JPanel painelBusca = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        painelBusca.setOpaque(false);
 
-        return painel;
-    }
+        JLabel lblPesquisa = new JLabel("Pesquisar por Descrição:");
+        lblPesquisa.setFont(TemaKoi.FONTE_INPUTS);
+        lblPesquisa.setForeground(TemaKoi.COR_TEXTO_ESCURO);
 
-    private JPanel criarPainelDireito() {
-        JPanel painel = new JPanel(new BorderLayout(5, 5));
+        txtPesquisa = new JTextField(25);
+        TemaKoi.estilizarCampoTexto(txtPesquisa);
 
-        // Sub-painel topo (Barra de Pesquisa)
-        JPanel painelBusca = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        painelBusca.add(new JLabel("Pesquisar por Descrição:"));
-        txtPesquisa = new JTextField(20);
-
-        // Listener de busca em tempo real
         txtPesquisa.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyReleased(java.awt.event.KeyEvent evt) {
@@ -92,20 +85,40 @@ public class PainelMovimentacao extends JPanel {
             }
         });
 
+        painelBusca.add(lblPesquisa);
         painelBusca.add(txtPesquisa);
-        painel.add(painelBusca, BorderLayout.NORTH);
 
-        // Configuração da JTable
+        // Adiciona as duas linhas no container superior
+        painelTopo.add(painelBotoes);
+        painelTopo.add(Box.createVerticalStrut(5));
+        painelTopo.add(painelBusca);
+
+        // Eventos dos Botões
+        btnNovo.addActionListener(e -> abrirModalCadastro(null));
+        btnEditar.addActionListener(e -> editarSelecionado());
+        btnExcluir.addActionListener(e -> excluirSelecionado());
+        btnAtualizar.addActionListener(e -> carregarTabela());
+
+        return painelTopo;
+    }
+
+    private JPanel criarPainelTabela() {
+        JPanel painel = new JPanel(new BorderLayout());
+        painel.setOpaque(false);
+
         String[] colunas = {"ID", "Data", "Categoria", "Descrição", "ID Insumo (FK)", "Valor (R$)"};
         modeloTabela = new DefaultTableModel(colunas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Impede edição direta na célula
+                return false;
             }
         };
 
         tabela = new JTable(modeloTabela);
         tabela.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        // Estilização da Tabela
+        TemaKoi.estilizarTabela(tabela);
 
         // Evento de Duplo Clique para Editar
         tabela.addMouseListener(new MouseAdapter() {
@@ -118,15 +131,18 @@ public class PainelMovimentacao extends JPanel {
         });
 
         JScrollPane scrollPane = new JScrollPane(tabela);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        scrollPane.getViewport().setBackground(Color.WHITE);
+
         painel.add(scrollPane, BorderLayout.CENTER);
 
         return painel;
     }
 
-    // --- MÉTODOS DE LÓGICA E BANCO ---
+    // --- MÉTODOS DE LÓGICA E BANCO (MANTIDOS 100% INTACTOS) ---
 
     public void carregarTabela() {
-        modeloTabela.setRowCount(0); // Limpa a tabela
+        modeloTabela.setRowCount(0);
         try {
             MovimentacaoDAO dao = new MovimentacaoDAO();
             List<Movimentacao> lista = dao.listarTodos();
@@ -154,7 +170,7 @@ public class PainelMovimentacao extends JPanel {
 
         try {
             MovimentacaoDAO dao = new MovimentacaoDAO();
-            List<Movimentacao> lista = dao.buscarPorDescricao(termo); // Filtra usando LIKE no banco
+            List<Movimentacao> lista = dao.buscarPorDescricao(termo);
 
             modeloTabela.setRowCount(0);
             for (Movimentacao m : lista) {
@@ -178,7 +194,7 @@ public class PainelMovimentacao extends JPanel {
         if (movParaEditar != null) {
             formMov.carregarDadosParaEdicao(
                 movParaEditar.getIdMovimentacao(),
-                String.valueOf(movParaEditar.getDataMovimentacao()), // Converte LocalDate/Date para String
+                String.valueOf(movParaEditar.getDataMovimentacao()),
                 movParaEditar.getCategoria(),
                 movParaEditar.getDescricao(),
                 String.valueOf(movParaEditar.getIdInsumo()),
@@ -196,7 +212,6 @@ public class PainelMovimentacao extends JPanel {
                 FormController controller = new FormController();
                 ModalCadastroBase dialogAtual = (ModalCadastroBase) SwingUtilities.getWindowAncestor((Component) e.getSource());
                 
-                // Chamada do controlador!
                 controller.salvarMovimentacao(formMov, dialogAtual);
             }
         );

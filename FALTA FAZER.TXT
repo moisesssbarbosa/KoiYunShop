@@ -1,6 +1,5 @@
-1. janela principal com filtro dinamico 
-2. JInternal pra mostrar a tabela e os botões do das coisas
-3. Filtro / Pesquisa Rápida no Topo da Tabela: Adicionar um JTextField em cima da tabela para filtrar por Nome ou CPF/CNPJ em tempo real facilita bastante a busca quando houver centenas de registros.
-Duplo Clique para Editar: Além do botão "Editar", configurar a tabela para que o duplo clique em uma linha abra diretamente a janela de edição.
-Menu Suspenso (Botão Direito na Tabela): Colocar os atalhos (Ex: Ver Vendas deste Cliente, Nova Venda) também em um menu popup (JPopupMenu) ao clicar com o botão direito do mouse em uma linha da tabela.
-4. 
+colocar um jcombo na merda da bosta da variedade dos peixe
+
+formato invalido de data na hora de inserir um novo peixe
+
+criar pasta no projeto com as imagens do peixe

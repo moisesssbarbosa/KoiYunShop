@@ -1,5 +1,6 @@
 package janelas.componentes;
 
+import janelas.estilos.TemaKoi;
 import javax.swing.*;
 import java.awt.*;
 
@@ -11,23 +12,40 @@ public class FormItemVenda extends JPanel {
     private Integer idItemVendaEmEdicao = null;
 
     public FormItemVenda() {
-        // Layout em Grade: 3 linhas x 2 colunas
-        setLayout(new GridLayout(3, 2, 8, 8));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // Fundo do painel padronizado
+        setBackground(TemaKoi.COR_FUNDO_TELA);
+
+        // Layout de grade ajustado para 3 linhas x 2 colunas com espaçamentos adequados
+        setLayout(new GridLayout(3, 2, 10, 12));
+        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         // Instanciação dos campos
         txtPreco = new JTextField();
         txtIdVendaFk = new JTextField();
         txtIdPeixeFk = new JTextField();
 
+        // Aplicação do estilo nos campos de texto
+        TemaKoi.estilizarCampoTexto(txtPreco);
+        TemaKoi.estilizarCampoTexto(txtIdVendaFk);
+        TemaKoi.estilizarCampoTexto(txtIdPeixeFk);
+
+        // Criando e estilizando os rótulos (Labels)
+        JLabel lblPreco = new JLabel("Preço (R$):");
+        JLabel lblIdVendaFk = new JLabel("ID Venda (FK):");
+        JLabel lblIdPeixeFk = new JLabel("ID Peixe (FK):");
+
+        TemaKoi.estilizarLabel(lblPreco);
+        TemaKoi.estilizarLabel(lblIdVendaFk);
+        TemaKoi.estilizarLabel(lblIdPeixeFk);
+
         // Adição dos rótulos e componentes ao formulário
-        add(new JLabel("Preço (R$):"));
+        add(lblPreco);
         add(txtPreco);
 
-        add(new JLabel("ID Venda (FK):"));
+        add(lblIdVendaFk);
         add(txtIdVendaFk);
 
-        add(new JLabel("ID Peixe (FK):"));
+        add(lblIdPeixeFk);
         add(txtIdPeixeFk);
     }
 

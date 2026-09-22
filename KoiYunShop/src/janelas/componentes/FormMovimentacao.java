@@ -1,5 +1,6 @@
 package janelas.componentes;
 
+import janelas.estilos.TemaKoi;
 import javax.swing.*;
 import java.awt.*;
 
@@ -13,9 +14,12 @@ public class FormMovimentacao extends JPanel {
     private Integer idMovimentacaoEmEdicao = null;
 
     public FormMovimentacao() {
-        // Layout em Grade: 5 linhas (uma para cada campo inserível) x 2 colunas
-        setLayout(new GridLayout(5, 2, 8, 8));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // Fundo do painel padronizado
+        setBackground(TemaKoi.COR_FUNDO_TELA);
+
+        // Layout de grade ajustado para 5 linhas x 2 colunas com espaçamentos adequados
+        setLayout(new GridLayout(5, 2, 10, 12));
+        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         // Instanciação dos campos com a data atual preenchida por padrão
         txtDataMovimentacao = new JTextField(java.time.LocalDate.now().toString());
@@ -24,20 +28,40 @@ public class FormMovimentacao extends JPanel {
         txtIdInsumoFk = new JTextField();
         txtValor = new JTextField();
 
+        // Aplicação do estilo nos campos de texto
+        TemaKoi.estilizarCampoTexto(txtDataMovimentacao);
+        TemaKoi.estilizarCampoTexto(txtCategoria);
+        TemaKoi.estilizarCampoTexto(txtDescricao);
+        TemaKoi.estilizarCampoTexto(txtIdInsumoFk);
+        TemaKoi.estilizarCampoTexto(txtValor);
+
+        // Criando e estilizando os rótulos (Labels)
+        JLabel lblDataMovimentacao = new JLabel("Data Movimentação (AAAA-MM-DD):");
+        JLabel lblCategoria = new JLabel("Categoria:");
+        JLabel lblDescricao = new JLabel("Descrição:");
+        JLabel lblIdInsumoFk = new JLabel("ID Insumo (FK):");
+        JLabel lblValor = new JLabel("Valor (R$):");
+
+        TemaKoi.estilizarLabel(lblDataMovimentacao);
+        TemaKoi.estilizarLabel(lblCategoria);
+        TemaKoi.estilizarLabel(lblDescricao);
+        TemaKoi.estilizarLabel(lblIdInsumoFk);
+        TemaKoi.estilizarLabel(lblValor);
+
         // Adição dos rótulos e componentes ao formulário
-        add(new JLabel("Data Movimentação (AAAA-MM-DD):"));
+        add(lblDataMovimentacao);
         add(txtDataMovimentacao);
 
-        add(new JLabel("Categoria:"));
+        add(lblCategoria);
         add(txtCategoria);
 
-        add(new JLabel("Descrição:"));
+        add(lblDescricao);
         add(txtDescricao);
 
-        add(new JLabel("ID Insumo (FK):"));
+        add(lblIdInsumoFk);
         add(txtIdInsumoFk);
 
-        add(new JLabel("Valor (R$):"));
+        add(lblValor);
         add(txtValor);
     }
 

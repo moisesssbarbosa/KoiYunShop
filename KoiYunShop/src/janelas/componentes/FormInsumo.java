@@ -1,5 +1,6 @@
 package janelas.componentes;
 
+import janelas.estilos.TemaKoi;
 import javax.swing.*;
 import java.awt.*;
 
@@ -12,9 +13,12 @@ public class FormInsumo extends JPanel {
     private Integer idInsumoEmEdicao = null;
 
     public FormInsumo() {
-        // Layout em Grade: 4 linhas (uma para cada campo inserível) x 2 colunas
-        setLayout(new GridLayout(4, 2, 8, 8));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // Fundo do painel padronizado
+        setBackground(TemaKoi.COR_FUNDO_TELA);
+
+        // Layout de grade ajustado para 4 linhas x 2 colunas com espaçamentos adequados
+        setLayout(new GridLayout(4, 2, 10, 12));
+        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         // Instanciação dos campos
         txtNomeInsumo = new JTextField();
@@ -22,17 +26,34 @@ public class FormInsumo extends JPanel {
         txtQuantidadeMinimaAlerta = new JTextField();
         txtPrecoCustoPorKg = new JTextField();
 
+        // Aplicação do estilo nos campos de texto
+        TemaKoi.estilizarCampoTexto(txtNomeInsumo);
+        TemaKoi.estilizarCampoTexto(txtQuantidadeAtualKg);
+        TemaKoi.estilizarCampoTexto(txtQuantidadeMinimaAlerta);
+        TemaKoi.estilizarCampoTexto(txtPrecoCustoPorKg);
+
+        // Criando e estilizando os rótulos (Labels)
+        JLabel lblNomeInsumo = new JLabel("Nome Insumo:");
+        JLabel lblQuantidadeAtualKg = new JLabel("Qtd. Atual (Kg):");
+        JLabel lblQuantidadeMinimaAlerta = new JLabel("Qtd. Mínima Alerta (Kg):");
+        JLabel lblPrecoCustoPorKg = new JLabel("Preço Custo por Kg (R$):");
+
+        TemaKoi.estilizarLabel(lblNomeInsumo);
+        TemaKoi.estilizarLabel(lblQuantidadeAtualKg);
+        TemaKoi.estilizarLabel(lblQuantidadeMinimaAlerta);
+        TemaKoi.estilizarLabel(lblPrecoCustoPorKg);
+
         // Adição dos rótulos e componentes ao formulário
-        add(new JLabel("Nome Insumo:"));
+        add(lblNomeInsumo);
         add(txtNomeInsumo);
 
-        add(new JLabel("Qtd. Atual (Kg):"));
+        add(lblQuantidadeAtualKg);
         add(txtQuantidadeAtualKg);
 
-        add(new JLabel("Qtd. Mínima Alerta (Kg):"));
+        add(lblQuantidadeMinimaAlerta);
         add(txtQuantidadeMinimaAlerta);
 
-        add(new JLabel("Preço Custo por Kg (R$):"));
+        add(lblPrecoCustoPorKg);
         add(txtPrecoCustoPorKg);
     }
 

@@ -5,6 +5,7 @@ import janelas.ModalCadastroBase;
 import janelas.componentes.FormCliente;
 import janelas.componentes.FormVenda;
 import modelo.Cliente;
+import janelas.estilos.TemaKoi; // Import da classe de estilização
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -33,99 +34,102 @@ public class PainelCliente extends JPanel {
     private JButton btnNovaVenda;
 
     public PainelCliente() {
-        setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setLayout(new BorderLayout(15, 15));
+        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        setBackground(TemaKoi.COR_FUNDO_TELA);
 
-        // 1. Painel Esquerdo (Botões e Ações)
-        add(criarPainelEsquerdo(), BorderLayout.WEST);
+        // 1. Painel Superior (Botões CRUD + Barra de Pesquisa)
+        add(criarPainelTopo(), BorderLayout.NORTH);
 
-        // 2. Painel Direito (Pesquisa + Tabela)
-        add(criarPainelDireito(), BorderLayout.CENTER);
+        // 2. Painel Central (Tabela de Clientes)
+        add(criarPainelTabela(), BorderLayout.CENTER);
 
         // 3. Carrega os dados iniciais do banco
         carregarTabela();
     }
 
-    private JPanel criarPainelEsquerdo() {
-        JPanel painel = new JPanel();
-        painel.setLayout(new BoxLayout(painel, BoxLayout.Y_AXIS));
-        painel.setPreferredSize(new Dimension(180, 0));
+    private JPanel criarPainelTopo() {
+        JPanel painelTopo = new JPanel();
+        painelTopo.setLayout(new BoxLayout(painelTopo, BoxLayout.Y_AXIS));
+        painelTopo.setOpaque(false);
 
-        // Criando os botões
-        btnNovo = new JButton("Novo Cliente");
+        // --- LINHA 1: BOTÕES DE AÇÃO (CRUD) NO TOPO ---
+        JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        painelBotoes.setOpaque(false);
+
+        btnNovo = new JButton("+ Novo Cliente");
         btnEditar = new JButton("Editar");
         btnExcluir = new JButton("Excluir");
         btnAtualizar = new JButton("Atualizar Tabela");
         btnNovaVenda = new JButton("+ Nova Venda");
 
-        // Estilizando larguras
-        Dimension maxDim = new Dimension(170, 35);
-        btnNovo.setMaximumSize(maxDim);
-        btnEditar.setMaximumSize(maxDim);
-        btnExcluir.setMaximumSize(maxDim);
-        btnAtualizar.setMaximumSize(maxDim);
-        btnNovaVenda.setMaximumSize(maxDim);
+        // Aplicação da Estilização TemaKoi nos Botões
+        TemaKoi.estilizarBotaoCrud(btnNovo, TemaKoi.COR_VERDE);
+        TemaKoi.estilizarBotaoCrud(btnEditar, TemaKoi.COR_AZUL);
+        TemaKoi.estilizarBotaoCrud(btnExcluir, TemaKoi.COR_VERMELHO);
+        TemaKoi.estilizarBotaoCrud(btnAtualizar, new Color(108, 117, 125)); // Cinza neutro
+        TemaKoi.estilizarBotaoCrud(btnNovaVenda, TemaKoi.COR_LARANJA);
 
-        // Adicionando componentes
-        painel.add(btnNovo);
-        painel.add(Box.createVerticalStrut(8));
-        painel.add(btnEditar);
-        painel.add(Box.createVerticalStrut(8));
-        painel.add(btnExcluir);
-        painel.add(Box.createVerticalStrut(8));
-        painel.add(btnAtualizar);
-        
-        painel.add(Box.createVerticalStrut(25)); // Espaçamento para o atalho
-        painel.add(new JSeparator(JSeparator.HORIZONTAL));
-        painel.add(Box.createVerticalStrut(10));
-        
-        painel.add(btnNovaVenda);
+        painelBotoes.add(btnNovo);
+        painelBotoes.add(btnEditar);
+        painelBotoes.add(btnExcluir);
+        painelBotoes.add(btnAtualizar);
+        painelBotoes.add(Box.createHorizontalStrut(15)); // Espaçador visual
+        painelBotoes.add(btnNovaVenda);
 
-        // --- EVENTOS DOS BOTÕES ---
+        // --- LINHA 2: BARRA DE PESQUISA ---
+        JPanel painelBusca = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        painelBusca.setOpaque(false);
 
-        btnNovo.addActionListener(e -> abrirModalCadastro(null));
+        JLabel lblPesquisa = new JLabel("Pesquisar Cliente:");
+        lblPesquisa.setFont(TemaKoi.FONTE_INPUTS);
+        lblPesquisa.setForeground(TemaKoi.COR_TEXTO_ESCURO);
 
-        btnEditar.addActionListener(e -> editarSelecionado());
+        txtPesquisa = new JTextField(25);
+        TemaKoi.estilizarCampoTexto(txtPesquisa);
 
-        btnExcluir.addActionListener(e -> excluirSelecionado());
-
-        btnAtualizar.addActionListener(e -> carregarTabela());
-
-        btnNovaVenda.addActionListener(e -> iniciarVendaParaCliente());
-
-        return painel;
-    }
-
-    private JPanel criarPainelDireito() {
-        JPanel painel = new JPanel(new BorderLayout(5, 5));
-
-        // Sub-painel topo (Barra de Pesquisa)
-        JPanel painelBusca = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        painelBusca.add(new JLabel("Pesquisar Cliente:"));
-        txtPesquisa = new JTextField(20);
-        
-        // Listener de busca em tempo real
         txtPesquisa.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 filtrarTabela(txtPesquisa.getText());
             }
         });
-        
-        painelBusca.add(txtPesquisa);
-        painel.add(painelBusca, BorderLayout.NORTH);
 
-        // Configuração da JTable (Campos baseados na tabela clientes do BD)
+        painelBusca.add(lblPesquisa);
+        painelBusca.add(txtPesquisa);
+
+        // Adiciona as duas linhas no container superior
+        painelTopo.add(painelBotoes);
+        painelTopo.add(Box.createVerticalStrut(5));
+        painelTopo.add(painelBusca);
+
+        // Eventos dos Botões
+        btnNovo.addActionListener(e -> abrirModalCadastro(null));
+        btnEditar.addActionListener(e -> editarSelecionado());
+        btnExcluir.addActionListener(e -> excluirSelecionado());
+        btnAtualizar.addActionListener(e -> carregarTabela());
+        btnNovaVenda.addActionListener(e -> iniciarVendaParaCliente());
+
+        return painelTopo;
+    }
+
+    private JPanel criarPainelTabela() {
+        JPanel painel = new JPanel(new BorderLayout());
+        painel.setOpaque(false);
+
         String[] colunas = {"ID", "Nome", "CPF/CNPJ", "Telefone", "E-mail", "Cidade/UF"};
         modeloTabela = new DefaultTableModel(colunas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Impede edição direta na célula da tabela
+                return false;
             }
         };
 
         tabela = new JTable(modeloTabela);
         tabela.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        // Estilização da Tabela
+        TemaKoi.estilizarTabela(tabela);
 
         // Evento de Duplo Clique para Editar
         tabela.addMouseListener(new MouseAdapter() {
@@ -138,15 +142,18 @@ public class PainelCliente extends JPanel {
         });
 
         JScrollPane scrollPane = new JScrollPane(tabela);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        scrollPane.getViewport().setBackground(Color.WHITE);
+
         painel.add(scrollPane, BorderLayout.CENTER);
 
         return painel;
     }
 
-    // --- MÉTODOS DE LÓGICA E BANCO ---
+    // --- MÉTODOS DE LÓGICA E BANCO (MANTIDOS 100% INTACTOS) ---
 
     public void carregarTabela() {
-        modeloTabela.setRowCount(0); // Limpa a tabela
+        modeloTabela.setRowCount(0);
         try {
             ClientesDAO dao = new ClientesDAO();
             List<Cliente> lista = dao.listarTodos();
@@ -167,7 +174,6 @@ public class PainelCliente extends JPanel {
     }
 
     private void filtrarTabela(String termo) {
-        // Método simples de busca ou recarga filtrada do DAO
         if (termo.trim().isEmpty()) {
             carregarTabela();
             return;
@@ -175,7 +181,7 @@ public class PainelCliente extends JPanel {
         
         try {
             ClientesDAO dao = new ClientesDAO();
-            List<Cliente> lista = dao.buscarClientePorNome(termo); // Requer método buscarPorNome no DAO
+            List<Cliente> lista = dao.buscarClientePorNome(termo);
 
             modeloTabela.setRowCount(0);
             for (Cliente c : lista) {
@@ -189,10 +195,8 @@ public class PainelCliente extends JPanel {
     }
 
     private void abrirModalCadastro(Cliente clienteParaEditar) {
-        // 1. Instancia o painel do formulário
         FormCliente formCliente = new FormCliente();
 
-        // 2. Se for edição, utiliza o seu método específico para preencher o formulário
         if (clienteParaEditar != null) {
             formCliente.carregarDadosParaEdicao(
                 clienteParaEditar.getIdCliente(),
@@ -204,10 +208,8 @@ public class PainelCliente extends JPanel {
             );
         }
 
-        // 3. Captura a janela principal
         Frame framePai = (Frame) SwingUtilities.getWindowAncestor(this);
 
-        // 4. Instancia o ModalCadastroBase
         ModalCadastroBase modal = new ModalCadastroBase(
             framePai, 
             clienteParaEditar == null ? "Cadastrar Cliente" : "Editar Cliente", 
@@ -219,12 +221,10 @@ public class PainelCliente extends JPanel {
             }
         );
 
-        // 5. Ajusta e exibe o modal
         modal.pack();
         modal.setLocationRelativeTo(framePai);
         modal.setVisible(true);
 
-        // 6. Atualiza a tabela assim que o modal for fechado
         carregarTabela();
     }
 
@@ -283,36 +283,24 @@ public class PainelCliente extends JPanel {
             return;
         }
        
-        // Pega o ID do cliente selecionado na tabela
         int idCliente = (int) tabela.getValueAt(linha, 0);
 
-        // 1. Cria o formulário de venda vazio
         FormVenda formVenda = new FormVenda();
-
-        // 2. Preenche apenas o ID do Cliente (usando o método novo que criamos)
         formVenda.preencherCliente(String.valueOf(idCliente));
 
-        // 3. Pega a janela principal para ancorar o modal
         Frame framePai = (Frame) SwingUtilities.getWindowAncestor(this);
 
-        // 4. Abre o modal passando o FormVenda
         ModalCadastroBase modal = new ModalCadastroBase(
             framePai, 
             "Nova Venda", 
             formVenda, 
             e -> {
-                // Instancia o seu controller
                 FormController controller = new FormController();
-                
-                // Descobre qual é a janela modal atual
                 ModalCadastroBase dialogAtual = (ModalCadastroBase) SwingUtilities.getWindowAncestor((Component) e.getSource());
-                
-                // Chama o método que acabamos de arrumar
                 controller.salvarVenda(formVenda, dialogAtual);
             }
         );
 
-        // Exibe o modal na tela
         modal.pack();
         modal.setLocationRelativeTo(framePai);
         modal.setVisible(true);
