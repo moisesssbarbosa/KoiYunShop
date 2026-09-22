@@ -3,7 +3,7 @@ package janelas.paineis;
 import dao.PeixeDAO;
 import janelas.ModalCadastroBase;
 import janelas.componentes.FormPeixe;
-import modelo.Peixe; // Certifique-se de que o pacote e nome estão corretos
+import modelo.Peixe;
 import controladores.FormController;
 
 import javax.swing.*;
@@ -30,85 +30,79 @@ public class PainelPeixe extends JPanel {
     private JPanel cardSelecionado = null;
     private Peixe peixeSelecionado = null;
     private Border bordaNormal = BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1);
-    private Border bordaSelecionada = BorderFactory.createLineBorder(new Color(0, 120, 215), 3);
+    private Border bordaSelecionada = BorderFactory.createLineBorder(new Color(255, 102, 0), 3); // Borda Laranja Koi quando selecionado
 
     public PainelPeixe() {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setBackground(new Color(245, 245, 245)); // Fundo combinando com a tela principal
 
-        // 1. Painel Esquerdo (Botões e Ações)
-        add(criarPainelEsquerdo(), BorderLayout.WEST);
+        // 1. Painel Superior (Botões CRUD + Pesquisa)
+        add(criarPainelTopo(), BorderLayout.NORTH);
 
-        // 2. Painel Direito (Pesquisa + Catálogo de Cards)
-        add(criarPainelDireito(), BorderLayout.CENTER);
+        // 2. Painel Central (Catálogo de Cards)
+        add(criarPainelCentral(), BorderLayout.CENTER);
 
         // 3. Carrega os dados iniciais do banco
         carregarCatalogo();
     }
 
-    private JPanel criarPainelEsquerdo() {
-        JPanel painel = new JPanel();
-        painel.setLayout(new BoxLayout(painel, BoxLayout.Y_AXIS));
-        painel.setPreferredSize(new Dimension(180, 0));
+    private JPanel criarPainelTopo() {
+        JPanel painelTopo = new JPanel(new BorderLayout());
+        painelTopo.setOpaque(false);
+
+        // Linha 1: Botões de Ação (CRUD) dispostos horizontalmente
+        JPanel painelAcoes = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        painelAcoes.setOpaque(false);
 
         btnNovo = new JButton("Novo Peixe");
         btnEditar = new JButton("Editar");
         btnExcluir = new JButton("Excluir");
         btnAtualizar = new JButton("Atualizar Catálogo");
 
-        Dimension maxDim = new Dimension(170, 35);
-        btnNovo.setMaximumSize(maxDim);
-        btnEditar.setMaximumSize(maxDim);
-        btnExcluir.setMaximumSize(maxDim);
-        btnAtualizar.setMaximumSize(maxDim);
+        painelAcoes.add(btnNovo);
+        painelAcoes.add(btnEditar);
+        painelAcoes.add(btnExcluir);
+        painelAcoes.add(btnAtualizar);
 
-        painel.add(btnNovo);
-        painel.add(Box.createVerticalStrut(8));
-        painel.add(btnEditar);
-        painel.add(Box.createVerticalStrut(8));
-        painel.add(btnExcluir);
-        painel.add(Box.createVerticalStrut(8));
-        painel.add(btnAtualizar);
-
-        // Eventos
-        btnNovo.addActionListener(e -> abrirModalCadastro(null));
-        btnEditar.addActionListener(e -> editarSelecionado());
-        btnExcluir.addActionListener(e -> excluirSelecionado());
-        btnAtualizar.addActionListener(e -> carregarCatalogo());
-
-        return painel;
-    }
-
-    private JPanel criarPainelDireito() {
-        JPanel painel = new JPanel(new BorderLayout(5, 5));
-
-        // Barra de Pesquisa por Variedade
-        JPanel painelBusca = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        // Linha 2: Barra de Pesquisa
+        JPanel painelBusca = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 15));
+        painelBusca.setOpaque(false);
         painelBusca.add(new JLabel("Filtrar por Variedade (Ex: Kohaku):"));
-        txtPesquisa = new JTextField(20);
-
+        
+        txtPesquisa = new JTextField(30);
         txtPesquisa.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 filtrarCatalogo(txtPesquisa.getText());
             }
         });
-
         painelBusca.add(txtPesquisa);
-        painel.add(painelBusca, BorderLayout.NORTH);
 
+        // Adicionando as duas linhas no painel de topo
+        painelTopo.add(painelAcoes, BorderLayout.NORTH);
+        painelTopo.add(painelBusca, BorderLayout.CENTER);
+
+        // Eventos dos Botões
+        btnNovo.addActionListener(e -> abrirModalCadastro(null));
+        btnEditar.addActionListener(e -> editarSelecionado());
+        btnExcluir.addActionListener(e -> excluirSelecionado());
+        btnAtualizar.addActionListener(e -> carregarCatalogo());
+
+        return painelTopo;
+    }
+
+    private JScrollPane criarPainelCentral() {
         // Container do Catálogo usando FlowLayout (permite quebrar linha)
         painelCatalogo = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 15));
         painelCatalogo.setBackground(Color.WHITE);
 
-        // JScrollPane para permitir rolagem caso haja muitos peixes
+        // JScrollPane para permitir rolagem
         JScrollPane scrollPane = new JScrollPane(painelCatalogo);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY)); // Borda sutil no catálogo
         
-        painel.add(scrollPane, BorderLayout.CENTER);
-
-        return painel;
+        return scrollPane;
     }
 
     // --- LÓGICA DE CARREGAMENTO DOS CARDS ---
@@ -129,7 +123,6 @@ public class PainelPeixe extends JPanel {
             List<Peixe> lista = termo.trim().isEmpty() ? dao.listarTodos() : dao.buscarPorVariedade(termo);
             renderizarCards(lista);
         } catch (SQLException e) {
-            // Ignora falhas de digitação rápida
         }
     }
 
@@ -143,7 +136,6 @@ public class PainelPeixe extends JPanel {
             painelCatalogo.add(card);
         }
 
-        // Atualiza a interface gráfica
         painelCatalogo.revalidate();
         painelCatalogo.repaint();
     }
@@ -152,29 +144,26 @@ public class PainelPeixe extends JPanel {
         JPanel card = new JPanel();
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
         card.setPreferredSize(new Dimension(160, 220));
-        card.setBackground(new Color(245, 245, 245));
+        card.setBackground(new Color(250, 250, 250));
         card.setBorder(bordaNormal);
 
-        // 1. Imagem da Variedade
         JLabel lblImagem = new JLabel(carregarImagemVariedade(peixe.getVariedade()));
         lblImagem.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-        // 2. Informações de Texto
-        JLabel lblCod = new JLabel("Cód: " + peixe.getCodigoIdentificador());
+        JLabel lblCod = new JLabel("Cód: " + peixe.getCodigoIdentificador()); // Ajustado para o nome do seu Getter
         lblCod.setFont(new Font("Arial", Font.BOLD, 12));
         lblCod.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel lblVar = new JLabel(peixe.getVariedade());
         lblVar.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel lblTamanho = new JLabel("Tam: " + peixe.getTamanhoCm() + "cm");
+        JLabel lblTamanho = new JLabel("Tam: " + peixe.getTamanhoCm() + "cm"); // Ajustado para o nome do seu Getter
         lblTamanho.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel lblPreco = new JLabel("R$ " + peixe.getPrecoVenda());
         lblPreco.setForeground(new Color(0, 128, 0));
         lblPreco.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Montando o Card
         card.add(Box.createVerticalStrut(10));
         card.add(lblImagem);
         card.add(Box.createVerticalStrut(10));
@@ -183,18 +172,18 @@ public class PainelPeixe extends JPanel {
         card.add(lblTamanho);
         card.add(lblPreco);
 
-        // Evento de Clique para Selecionar o Card
         card.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (cardSelecionado != null) {
-                    cardSelecionado.setBorder(bordaNormal); // Tira o foco do anterior
+                    cardSelecionado.setBorder(bordaNormal);
+                    cardSelecionado.setBackground(new Color(250, 250, 250));
                 }
-                card.setBorder(bordaSelecionada); // Põe foco no atual
+                card.setBorder(bordaSelecionada);
+                card.setBackground(Color.WHITE); // Destaca o fundo ao clicar
                 cardSelecionado = card;
                 peixeSelecionado = peixe;
 
-                // Duplo clique para editar
                 if (e.getClickCount() == 2) {
                     editarSelecionado();
                 }
@@ -207,7 +196,6 @@ public class PainelPeixe extends JPanel {
     // --- GERENCIAMENTO DE IMAGENS ---
 
     private ImageIcon carregarImagemVariedade(String variedade) {
-        // Tenta buscar a imagem na pasta resources/imagens baseada no nome (ex: kohaku.png)
         String nomeArquivo = variedade.trim().toLowerCase().replace(" ", "_") + ".png";
         java.net.URL imgURL = getClass().getResource("/imagens/" + nomeArquivo);
 
@@ -216,20 +204,20 @@ public class PainelPeixe extends JPanel {
             Image imagemRedimensionada = iconeOriginal.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
             return new ImageIcon(imagemRedimensionada);
         } else {
-            return criarImagemPadrao(variedade); // Imagem genérica se não encontrar
+            return criarImagemPadrao(variedade);
         }
     }
 
     private ImageIcon criarImagemPadrao(String texto) {
         BufferedImage img = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = img.createGraphics();
-        g2d.setColor(new Color(200, 200, 200));
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setColor(new Color(220, 220, 220));
         g2d.fillRoundRect(0, 0, 100, 100, 15, 15);
         g2d.setColor(Color.DARK_GRAY);
         
-        // Desenha a inicial ou as primeiras letras se não houver foto
         String sigla = texto.length() >= 3 ? texto.substring(0, 3).toUpperCase() : "P/X";
-        g2d.setFont(new Font("Arial", Font.BOLD, 24));
+        g2d.setFont(new Font("Segoe UI", Font.BOLD, 24));
         FontMetrics fm = g2d.getFontMetrics();
         int x = (100 - fm.stringWidth(sigla)) / 2;
         int y = ((100 - fm.getHeight()) / 2) + fm.getAscent();
@@ -247,13 +235,13 @@ public class PainelPeixe extends JPanel {
         if (peixeEditar != null) {
             formPeixe.carregarDadosParaEdicao(
                 peixeEditar.getIdPeixe(),
-                String.valueOf(peixeEditar.getCodigoIdentificador()),
+                String.valueOf(peixeEditar.getCodigoIdentificador()), // Getter atualizado
                 peixeEditar.getVariedade(),
                 String.valueOf(peixeEditar.getDataEntrada()),
-                String.valueOf(peixeEditar.getTamanhoCm()),
+                String.valueOf(peixeEditar.getTamanhoCm()), // Getter atualizado
                 String.valueOf(peixeEditar.getPrecoVenda()),
                 peixeEditar.getStatus(),
-                String.valueOf(peixeEditar.getIdLago())
+                String.valueOf(peixeEditar.getIdLago()) // Getter atualizado
             );
         }
 
@@ -293,7 +281,7 @@ public class PainelPeixe extends JPanel {
 
         int confirmacao = JOptionPane.showConfirmDialog(
             this, 
-            "Deseja excluir o peixe " + peixeSelecionado.getVariedade() + " (Cód: " + peixeSelecionado.getCodigoIdentificador() + ")?", 
+            "Deseja excluir o peixe " + peixeSelecionado.getVariedade() + "?", 
             "Confirmar Exclusão", 
             JOptionPane.YES_NO_OPTION
         );
