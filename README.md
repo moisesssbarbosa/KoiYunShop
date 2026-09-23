@@ -12,11 +12,11 @@ O projeto foi estruturado seguindo os padrões MVC (Model-View-Controller), DAO 
    + **🏞️ Controle de Lagos:** Monitoramento dos tanques de criação com dados de 
    capacidade em litros, tipo (Natural ou Artificial), temperatura (°C) e qualidade da água    (Pronta, Tratando, Alerta).
    
-   + **🛒 Gestão de Vendas:** Registro de vendas associadas aos clientes, com formas    depagamento (Débito, Crédito, PIX, Boleto) e acompanhamento de entregas (Entregue,    Emrota, Preparando).
+   + **🛒 Gestão de Vendas:** Registro de vendas associadas aos clientes, com formas    de pagamento (Débito, Crédito, PIX, Boleto) e acompanhamento de entregas (Entregue,    Em rota, Preparando).
    
    + **💰 Movimentação Financeira:** Controle de entradas e saídas categorizadas(Insumos,    Despesas, Aquisições) com vínculo opcional a insumos do estoque.
    
-   + **👥 Clientes e Insumos:** Módulos de cadastro para suporte ao atendimento econtrole    de estoque de produtos e rações.
+   + **👥 Clientes e Insumos:** Módulos de cadastro para suporte ao atendimento e controle    de estoque de produtos e rações.
 
 
 ## 🛠️ Tecnologias Utilizadas
@@ -76,7 +76,7 @@ O script do banco está disponível na raiz do projeto para informações detalh
 
 1. Clonar o Repositório:
 ```bash
-git clone https://github.com/seu-usuario/koi-yun-shop.git
+git clone https://github.com/moisesssbarbosa/KoiYunShop.git
 ``` 
 2. Configurar o Banco de Dados:
 
