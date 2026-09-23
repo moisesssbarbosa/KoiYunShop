@@ -19,27 +19,31 @@ public class ItensVendaDAO {
         this.conexao = ConexaoDB.getConexao();
     }
 
-    // 1. INSERIR (Create)
-    public void salvar(ItemVenda item) throws SQLException {
-        String sql = "INSERT INTO itens_venda (preco, id_venda_fk, id_peixe_fk) VALUES (?, ?, ?)";
+    // 1. INSERIR (Create) usando o código identificador para buscar o ID do peixe
+    public void salvar(ItemVenda item, int codigoIdentificadorPeixe) throws SQLException {
+        // O sub-select (SELECT id_peixe FROM peixes WHERE codigo_identificador = ?) busca a FK automaticamente
+        String sql = "INSERT INTO itens_venda (preco, id_venda_fk, id_peixe_fk) " +
+                     "VALUES (?, ?, (SELECT id_peixe FROM peixes WHERE codigo_identificador = ?))";
 
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
-            stmt.setBigDecimal(1, item.getPrecoPago()); // Mapeado para o preco/precoPago
+            stmt.setBigDecimal(1, item.getPrecoPago());
             stmt.setInt(2, item.getIdVenda());
-            stmt.setInt(3, item.getIdPeixe());
+            stmt.setInt(3, codigoIdentificadorPeixe); // Passa o código exibido na tela
 
             stmt.executeUpdate();
         }
     }
 
-    // 2. ATUALIZAR (Update)
-    public void atualizar(ItemVenda item) throws SQLException {
-        String sql = "UPDATE itens_venda SET preco = ?, id_venda_fk = ?, id_peixe_fk = ? WHERE id_item_venda = ?";
+    // 2. ATUALIZAR (Update) usando o código identificador
+    public void atualizar(ItemVenda item, int codigoIdentificadorPeixe) throws SQLException {
+        String sql = "UPDATE itens_venda SET preco = ?, id_venda_fk = ?, " +
+                     "id_peixe_fk = (SELECT id_peixe FROM peixes WHERE codigo_identificador = ?) " +
+                     "WHERE id_item_venda = ?";
 
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setBigDecimal(1, item.getPrecoPago());
             stmt.setInt(2, item.getIdVenda());
-            stmt.setInt(3, item.getIdPeixe());
+            stmt.setInt(3, codigoIdentificadorPeixe); // Passa o código exibido na tela
             stmt.setInt(4, item.getIdItemVenda());
 
             stmt.executeUpdate();

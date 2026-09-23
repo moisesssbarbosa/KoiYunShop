@@ -32,7 +32,7 @@ public class FormItemVenda extends JPanel {
         // Criando e estilizando os rótulos (Labels)
         JLabel lblPreco = new JLabel("Preço (R$):");
         JLabel lblIdVendaFk = new JLabel("ID Venda (FK):");
-        JLabel lblIdPeixeFk = new JLabel("ID Peixe (FK):");
+        JLabel lblIdPeixeFk = new JLabel("Código Identificador do peixe (FK):");
 
         TemaKoi.estilizarLabel(lblPreco);
         TemaKoi.estilizarLabel(lblIdVendaFk);

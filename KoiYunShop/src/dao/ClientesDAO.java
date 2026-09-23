@@ -88,6 +88,39 @@ public class ClientesDAO {
         return null; // Retorna null caso não encontre
     }
 
+    // Verifica se o CPF já existe (Usado para NOVO CADASTRO)
+    public boolean existeCpf(String cpf) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM clientes WHERE cpf = ?";
+
+        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+            stmt.setString(1, cpf);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Sobrecarga: Verifica se o CPF já existe ignorando o próprio cliente (Usado para EDIÇÃO)
+    public boolean existeCpf(String cpf, int idClienteAtual) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM clientes WHERE cpf = ? AND id_cliente != ?";
+
+        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+            stmt.setString(1, cpf);
+            stmt.setInt(2, idClienteAtual);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+
     // 6. BUSCAR POR NOME (Read - BuscarClientePorNome)
     public List<Cliente> buscarClientePorNome(String nome) throws SQLException {
         String sql = "SELECT * FROM clientes WHERE nome LIKE ?";

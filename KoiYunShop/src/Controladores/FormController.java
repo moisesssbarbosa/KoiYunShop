@@ -81,15 +81,32 @@ public class FormController {
 
             PeixeDAO dao = new PeixeDAO();
 
+            // --- LÓGICA DE VALIDAÇÃO DE CÓDIGO CORRIGIDA ---
             if (form.isEdicao()) {
-                peixe.setIdPeixe(form.getIdPeixeEmEdicao());
+                int idAtual = form.getIdPeixeEmEdicao();
+                peixe.setIdPeixe(idAtual);
+
+                // MODO EDIÇÃO: Passa o ID atual para IGNOAR o próprio peixe no banco
+                if (dao.existeCodigoIdentificador(codigoVerificador, idAtual)) {
+                    JOptionPane.showMessageDialog(modal, "O código verificador desse peixe já existe em outro registro, insira outro.", "Código verificador já existente", JOptionPane.ERROR_MESSAGE);
+                    return; // Interrompe para não fechar o modal
+                }
+
                 dao.atualizar(peixe);
                 JOptionPane.showMessageDialog(modal, "Peixe atualizado com sucesso!");
+
             } else {
+                // MODO NOVO CADASTRO: Verifica se o código já existe na tabela
+                if (dao.existeCodigoIdentificador(codigoVerificador)) {
+                    JOptionPane.showMessageDialog(modal, "O código verificador desse peixe já existe, insira outro.", "Código verificador já existente", JOptionPane.ERROR_MESSAGE);
+                    return; // Interrompe para não fechar o modal
+                }
+
                 dao.salvar(peixe);
                 JOptionPane.showMessageDialog(modal, "Peixe cadastrado com sucesso!");
             }
 
+            // Fecha a janela apenas se salvou/atualizou com sucesso
             modal.dispose();
 
         } catch (ParseException e) {
@@ -155,10 +172,25 @@ public class FormController {
             ClientesDAO dao = new ClientesDAO();
 
             if (form.isEdicao()) {
-                cliente.setIdCliente(form.getIdClienteEmEdicao());
+                int idAtual = form.getIdClienteEmEdicao();
+                cliente.setIdCliente(idAtual);
+
+                // EDIÇÃO: Ignora o próprio cliente no banco
+                if (dao.existeCpf(cpfCnpj, idAtual)) {
+                    JOptionPane.showMessageDialog(modal, "Já existe outro cliente cadastrado com este CPF!", "CPF Duplicado", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 dao.atualizar(cliente);
                 JOptionPane.showMessageDialog(modal, "Cliente atualizado com sucesso!");
+
             } else {
+                // NOVO CADASTRO: Verifica se o CPF já existe na tabela
+                if (dao.existeCpf(cpfCnpj)) {
+                    JOptionPane.showMessageDialog(modal, "Já existe um cliente cadastrado com este CPF!", "CPF Duplicado", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 dao.salvar(cliente);
                 JOptionPane.showMessageDialog(modal, "Cliente cadastrado com sucesso!");
             }
@@ -272,10 +304,10 @@ public class FormController {
 
             if (form.isEdicao()) {
                 item.setIdItemVenda(form.getIdItemVendaEmEdicao());
-                dao.atualizar(item);
+                dao.atualizar(item, idPeixe);
                 JOptionPane.showMessageDialog(modal, "Item de venda atualizado com sucesso!");
             } else {
-                dao.salvar(item);
+                dao.salvar(item, idPeixe);
                 JOptionPane.showMessageDialog(modal, "Item de venda cadastrado com sucesso!");
             }
 

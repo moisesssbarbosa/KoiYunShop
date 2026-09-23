@@ -36,6 +36,39 @@ public class PeixeDAO {
         }
     }
 
+    // Verifica se já existe um peixe cadastrado com o mesmo código
+    public boolean existeCodigoIdentificador(int codigoIdentificador) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM peixes WHERE codigo_identificador = ?";
+
+        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+            stmt.setInt(1, codigoIdentificador);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Sobrecarga para uso no modo EDIÇÃO (ignora o próprio peixe)
+    public boolean existeCodigoIdentificador(int codigoIdentificador, int idPeixeAtual) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM peixes WHERE codigo_identificador = ? AND id_peixe != ?";
+
+        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+            stmt.setInt(1, codigoIdentificador);
+            stmt.setInt(2, idPeixeAtual);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+
     // 2. ATUALIZAR (Update)
     public void atualizar(Peixe peixe) throws SQLException {
         String sql = "UPDATE peixes SET codigo_verificador = ?, variedade = ?, data_entrada = ?, tamanho_cm = ?, preco_venda = ?, status = ?, id_lago_fk = ? WHERE id_peixe = ?";

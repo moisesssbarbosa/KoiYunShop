@@ -1,12 +1,10 @@
 package janelas.componentes;
 
 import janelas.estilos.TemaKoi;
-import modelo.Peixe;
 
 import javax.swing.*;
 import java.awt.*;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class FormPeixe extends JPanel {
