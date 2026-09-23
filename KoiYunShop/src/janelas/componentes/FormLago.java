@@ -8,10 +8,22 @@ public class FormLago extends JPanel {
 
     private JTextField txtNomeLago;
     private JTextField txtCapacidadeLitros;
-    private JTextField txtTipo;
-    private JTextField txtStatusAgua;
+    private JComboBox<String> cbTipo;
+    private JComboBox<String> cbStatusAgua;
     private JTextField txtTemperatura;
     private Integer idLagoEmEdicao = null;
+
+    // Opções dos ComboBoxes
+    private static final String[] TIPOS_LAGO = {
+        "natural",
+        "artificial"
+    };
+
+    private static final String[] STATUS_AGUA = {
+        "pronta",
+        "tratando",
+        "alerta"
+    };
 
     public FormLago() {
         // Fundo do painel padronizado
@@ -24,15 +36,13 @@ public class FormLago extends JPanel {
         // Instanciação dos campos
         txtNomeLago = new JTextField();
         txtCapacidadeLitros = new JTextField();
-        txtTipo = new JTextField();
-        txtStatusAgua = new JTextField();
+        cbTipo = new JComboBox<>(TIPOS_LAGO);
+        cbStatusAgua = new JComboBox<>(STATUS_AGUA);
         txtTemperatura = new JTextField();
 
         // Aplicação do estilo nos campos de texto
         TemaKoi.estilizarCampoTexto(txtNomeLago);
         TemaKoi.estilizarCampoTexto(txtCapacidadeLitros);
-        TemaKoi.estilizarCampoTexto(txtTipo);
-        TemaKoi.estilizarCampoTexto(txtStatusAgua);
         TemaKoi.estilizarCampoTexto(txtTemperatura);
 
         // Criando e estilizando os rótulos (Labels)
@@ -56,10 +66,10 @@ public class FormLago extends JPanel {
         add(txtCapacidadeLitros);
 
         add(lblTipo);
-        add(txtTipo);
+        add(cbTipo);
 
         add(lblStatusAgua);
-        add(txtStatusAgua);
+        add(cbStatusAgua);
 
         add(lblTemperatura);
         add(txtTemperatura);
@@ -70,8 +80,8 @@ public class FormLago extends JPanel {
         this.idLagoEmEdicao = id;
         this.txtNomeLago.setText(nome);
         this.txtCapacidadeLitros.setText(capacidade);
-        this.txtTipo.setText(tipo);
-        this.txtStatusAgua.setText(statusAgua);
+        this.cbTipo.setSelectedItem(tipo);
+        this.cbStatusAgua.setSelectedItem(statusAgua);
         this.txtTemperatura.setText(temperatura);
     }
 
@@ -95,11 +105,11 @@ public class FormLago extends JPanel {
     }
 
     public String getTipo() {
-        return txtTipo.getText().trim();
+        return (String) cbTipo.getSelectedItem();
     }
 
     public String getStatusAgua() {
-        return txtStatusAgua.getText().trim();
+        return (String) cbStatusAgua.getSelectedItem();
     }
 
     public String getTemperatura() {
@@ -111,8 +121,8 @@ public class FormLago extends JPanel {
         this.idLagoEmEdicao = null;
         txtNomeLago.setText("");
         txtCapacidadeLitros.setText("");
-        txtTipo.setText("");
-        txtStatusAgua.setText("");
+        if (cbTipo.getItemCount() > 0) cbTipo.setSelectedIndex(0);
+        if (cbStatusAgua.getItemCount() > 0) cbStatusAgua.setSelectedIndex(0);
         txtTemperatura.setText("");
     }
 
@@ -120,8 +130,8 @@ public class FormLago extends JPanel {
     public boolean isCamposValidos() {
         return !txtNomeLago.getText().trim().isEmpty() &&
                !txtCapacidadeLitros.getText().trim().isEmpty() &&
-               !txtTipo.getText().trim().isEmpty() &&
-               !txtStatusAgua.getText().trim().isEmpty() &&
+               cbTipo.getSelectedItem() != null &&
+               cbStatusAgua.getSelectedItem() != null &&
                !txtTemperatura.getText().trim().isEmpty();
     }
 }

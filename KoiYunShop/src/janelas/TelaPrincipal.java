@@ -161,18 +161,4 @@ public class TelaPrincipal extends JFrame {
 
         return btn;
     }
-
-    // Método main para você rodar a tela e testar!
-    public static void main(String[] args) {
-        // Tenta aplicar o design system do sistema operacional (deixa as bordas mais modernas)
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        SwingUtilities.invokeLater(() -> {
-            new TelaPrincipal().setVisible(true);
-        });
-    }
 }

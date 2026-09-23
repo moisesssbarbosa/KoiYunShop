@@ -17,7 +17,7 @@ public class Peixe {
 
     public Peixe(int idPeixe, int codigoIdentificador, String variedade, Date dataEntrada, BigDecimal tamanhoCm, BigDecimal precoVenda, String status, int idLago) {
         this.idPeixe = idPeixe;
-        this.codigoIdentificador =codigoIdentificador;
+        this.codigoIdentificador = codigoIdentificador;
         this.variedade = variedade;
         this.dataEntrada = dataEntrada;
         this.tamanhoCm = tamanhoCm;

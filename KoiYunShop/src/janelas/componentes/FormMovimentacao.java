@@ -3,15 +3,24 @@ package janelas.componentes;
 import janelas.estilos.TemaKoi;
 import javax.swing.*;
 import java.awt.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class FormMovimentacao extends JPanel {
 
     private JTextField txtDataMovimentacao;
-    private JTextField txtCategoria;
+    private JComboBox<String> cbCategoria;
     private JTextField txtDescricao;
     private JTextField txtIdInsumoFk;
     private JTextField txtValor;
     private Integer idMovimentacaoEmEdicao = null;
+
+    // Opções do ComboBox de Categoria
+    private static final String[] CATEGORIAS = {
+        "Insumos",
+        "Despesas",
+        "Aquisições"
+    };
 
     public FormMovimentacao() {
         // Fundo do painel padronizado
@@ -21,22 +30,21 @@ public class FormMovimentacao extends JPanel {
         setLayout(new GridLayout(5, 2, 10, 12));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        // Instanciação dos campos com a data atual preenchida por padrão
-        txtDataMovimentacao = new JTextField(java.time.LocalDate.now().toString());
-        txtCategoria = new JTextField();
+        // Instanciação dos campos
+        txtDataMovimentacao = new JTextField();
+        cbCategoria = new JComboBox<>(CATEGORIAS);
         txtDescricao = new JTextField();
         txtIdInsumoFk = new JTextField();
         txtValor = new JTextField();
 
         // Aplicação do estilo nos campos de texto
         TemaKoi.estilizarCampoTexto(txtDataMovimentacao);
-        TemaKoi.estilizarCampoTexto(txtCategoria);
         TemaKoi.estilizarCampoTexto(txtDescricao);
         TemaKoi.estilizarCampoTexto(txtIdInsumoFk);
         TemaKoi.estilizarCampoTexto(txtValor);
 
         // Criando e estilizando os rótulos (Labels)
-        JLabel lblDataMovimentacao = new JLabel("Data Movimentação (AAAA-MM-DD):");
+        JLabel lblDataMovimentacao = new JLabel("Data Movimentação (dd/MM/yyyy):");
         JLabel lblCategoria = new JLabel("Categoria:");
         JLabel lblDescricao = new JLabel("Descrição:");
         JLabel lblIdInsumoFk = new JLabel("ID Insumo (FK):");
@@ -53,7 +61,7 @@ public class FormMovimentacao extends JPanel {
         add(txtDataMovimentacao);
 
         add(lblCategoria);
-        add(txtCategoria);
+        add(cbCategoria);
 
         add(lblDescricao);
         add(txtDescricao);
@@ -68,8 +76,24 @@ public class FormMovimentacao extends JPanel {
     // Método para preencher os campos quando for EDITAR
     public void carregarDadosParaEdicao(int id, String data, String categoria, String descricao, String idInsumo, String valor) {
         this.idMovimentacaoEmEdicao = id;
-        this.txtDataMovimentacao.setText(data);
-        this.txtCategoria.setText(categoria);
+        
+        // Se a data vier como String no formato "yyyy-MM-dd"
+        if (data != null && !data.isEmpty()) {
+            try {
+                SimpleDateFormat sdfBanco = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat sdfTela = new SimpleDateFormat("dd/MM/yyyy");
+                
+                Date dateObj = sdfBanco.parse(data);
+                this.txtDataMovimentacao.setText(sdfTela.format(dateObj));
+            } catch (Exception e) {
+                this.txtDataMovimentacao.setText(data); // Se falhar a conversão, mantém o texto original
+            }
+        } else {
+            this.txtDataMovimentacao.setText("");
+        }
+
+
+        this.cbCategoria.setSelectedItem(categoria);
         this.txtDescricao.setText(descricao);
         this.txtIdInsumoFk.setText(idInsumo);
         this.txtValor.setText(valor);
@@ -91,7 +115,7 @@ public class FormMovimentacao extends JPanel {
     }
 
     public String getCategoria() {
-        return txtCategoria.getText().trim();
+        return (String) cbCategoria.getSelectedItem();
     }
 
     public String getDescricao() {
@@ -110,7 +134,7 @@ public class FormMovimentacao extends JPanel {
     public void limparCampos() {
         this.idMovimentacaoEmEdicao = null;
         txtDataMovimentacao.setText(java.time.LocalDate.now().toString());
-        txtCategoria.setText("");
+        if (cbCategoria.getItemCount() > 0) cbCategoria.setSelectedIndex(0);
         txtDescricao.setText("");
         txtIdInsumoFk.setText("");
         txtValor.setText("");
@@ -119,7 +143,7 @@ public class FormMovimentacao extends JPanel {
     // Valida se os campos obrigatórios foram preenchidos
     public boolean isCamposValidos() {
         return !txtDataMovimentacao.getText().trim().isEmpty() &&
-               !txtCategoria.getText().trim().isEmpty() &&
+               cbCategoria.getSelectedItem() != null &&
                !txtDescricao.getText().trim().isEmpty() &&
                !txtIdInsumoFk.getText().trim().isEmpty() &&
                !txtValor.getText().trim().isEmpty();

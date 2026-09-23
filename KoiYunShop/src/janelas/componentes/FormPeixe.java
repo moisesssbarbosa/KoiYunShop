@@ -1,19 +1,48 @@
 package janelas.componentes;
 
 import janelas.estilos.TemaKoi;
+import modelo.Peixe;
+
 import javax.swing.*;
 import java.awt.*;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 public class FormPeixe extends JPanel {
 
     private JTextField txtCodigoVerificador;
-    private JTextField txtVariedade;
+    private JComboBox<String> cbVariedade;
     private JTextField txtDataEntrada;
     private JTextField txtTamanho;
     private JTextField txtPrecoVenda;
     private JComboBox<String> cbStatus;
     private JTextField txtIdLagoFk;
     private Integer idPeixeEmEdicao = null;
+
+    // Lista de variedades de carpas Koi
+    private static final String[] VARIEDADES = {
+        "Kohaku",
+        "Taisho Sanshoku (Sanke)",
+        "Showa Sanshoku (Showa)",
+        "Ogon",
+        "Kujaku",
+        "Yamatonishiki",
+        "Sakura Ogon",
+        "Shiro Utsuri",
+        "Ki Utsuri",
+        "Hi Utsuri",
+        "Shusui",
+        "Kumonryu",
+        "Asagi",
+        "Tancho",
+        "Goshiki",
+        "Chagoi",
+        "Soragoi",
+        "Ochiba Shigure",
+        "Kikoromo (Koromo)",
+        "Benigoi"
+    };
 
     public FormPeixe() {
         // Fundo do painel padronizado
@@ -25,8 +54,8 @@ public class FormPeixe extends JPanel {
 
         // Instanciação dos campos
         txtCodigoVerificador = new JTextField();
-        txtVariedade = new JTextField();
-        txtDataEntrada = new JTextField(java.time.LocalDate.now().toString()); 
+        cbVariedade = new JComboBox<>(VARIEDADES);
+        txtDataEntrada = new JTextField(); 
         txtTamanho = new JTextField();
         txtPrecoVenda = new JTextField();
         cbStatus = new JComboBox<>(new String[]{"DISPONIVEL", "VENDIDO", "QUARENTENA"});
@@ -34,7 +63,6 @@ public class FormPeixe extends JPanel {
 
         // Aplicação do estilo nos campos de texto
         TemaKoi.estilizarCampoTexto(txtCodigoVerificador);
-        TemaKoi.estilizarCampoTexto(txtVariedade);
         TemaKoi.estilizarCampoTexto(txtDataEntrada);
         TemaKoi.estilizarCampoTexto(txtTamanho);
         TemaKoi.estilizarCampoTexto(txtPrecoVenda);
@@ -43,7 +71,7 @@ public class FormPeixe extends JPanel {
         // Criando e estilizando os rótulos (Labels)
         JLabel lblCodigoVerificador = new JLabel("Cód. Verificador:");
         JLabel lblVariedade = new JLabel("Variedade:");
-        JLabel lblDataEntrada = new JLabel("Data Entrada (AAAA-MM-DD):");
+        JLabel lblDataEntrada = new JLabel("Data Entrada (dd/MM/yyyy):");
         JLabel lblTamanho = new JLabel("Tamanho (cm):");
         JLabel lblPrecoVenda = new JLabel("Preço Venda (R$):");
         JLabel lblStatus = new JLabel("Status:");
@@ -62,7 +90,7 @@ public class FormPeixe extends JPanel {
         add(txtCodigoVerificador);
 
         add(lblVariedade);
-        add(txtVariedade);
+        add(cbVariedade);
 
         add(lblDataEntrada);
         add(txtDataEntrada);
@@ -80,12 +108,26 @@ public class FormPeixe extends JPanel {
         add(txtIdLagoFk);
     }
 
-    // Método para preencher os campos quando for EDITAR
     public void carregarDadosParaEdicao(int id, String cod, String var, String data, String tam, String preco, String status, String lago) {
         this.idPeixeEmEdicao = id;
         this.txtCodigoVerificador.setText(cod);
-        this.txtVariedade.setText(var);
-        this.txtDataEntrada.setText(data);
+        this.cbVariedade.setSelectedItem(var);
+
+        // Se a data vier como String no formato "yyyy-MM-dd"
+        if (data != null && !data.isEmpty()) {
+            try {
+                SimpleDateFormat sdfBanco = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat sdfTela = new SimpleDateFormat("dd/MM/yyyy");
+                
+                Date dateObj = sdfBanco.parse(data);
+                this.txtDataEntrada.setText(sdfTela.format(dateObj));
+            } catch (Exception e) {
+                this.txtDataEntrada.setText(data); // Se falhar a conversão, mantém o texto original
+            }
+        } else {
+            this.txtDataEntrada.setText("");
+        }
+
         this.txtTamanho.setText(tam);
         this.txtPrecoVenda.setText(preco);
         this.cbStatus.setSelectedItem(status);
@@ -108,7 +150,7 @@ public class FormPeixe extends JPanel {
     }
 
     public String getVariedade() {
-        return txtVariedade.getText().trim();
+        return (String) cbVariedade.getSelectedItem();
     }
 
     public String getDataEntrada() {
@@ -135,8 +177,10 @@ public class FormPeixe extends JPanel {
     public void limparCampos() {
         this.idPeixeEmEdicao = null;
         txtCodigoVerificador.setText("");
-        txtVariedade.setText("");
-        txtDataEntrada.setText(java.time.LocalDate.now().toString());
+        if (cbVariedade.getItemCount() > 0) {
+            cbVariedade.setSelectedIndex(0);
+        }
+        txtDataEntrada.setText("");
         txtTamanho.setText("");
         txtPrecoVenda.setText("");
         cbStatus.setSelectedIndex(0);
@@ -145,7 +189,7 @@ public class FormPeixe extends JPanel {
 
     public boolean isCamposValidos() {
         return !txtCodigoVerificador.getText().trim().isEmpty() &&
-               !txtVariedade.getText().trim().isEmpty() &&
+               cbVariedade.getSelectedItem() != null &&
                !txtDataEntrada.getText().trim().isEmpty() &&
                !txtTamanho.getText().trim().isEmpty() &&
                !txtPrecoVenda.getText().trim().isEmpty() &&

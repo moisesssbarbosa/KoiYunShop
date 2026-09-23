@@ -15,33 +15,61 @@ import java.util.Date;
 
 public class FormController {
 
+    // Método auxiliar para exibição padronizada de mensagens de aviso
+    private void exibirAviso(JDialog modal, String mensagem) {
+        JOptionPane.showMessageDialog(modal, mensagem, "Aviso de Validação", JOptionPane.WARNING_MESSAGE);
+    }
+
+    // =========================================================================
+    // 1. PEIXE
+    // =========================================================================
     public void salvarPeixe(FormPeixe form, JDialog modal) {
-        // 1. Validação dos campos obrigatórios do formulário
         if (!form.isCamposValidos()) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Por favor, preencha todos os campos obrigatórios!", 
-                "Aviso", 
-                JOptionPane.WARNING_MESSAGE
-            );
+            exibirAviso(modal, "Por favor, preencha todos os campos obrigatórios!");
             return;
         }
 
         try {
-            // 2. Tratamento e conversão de dados
             int codigoVerificador = Integer.parseInt(form.getCodigoVerificador().trim());
-            String variedade = form.getVariedade();
-            
+            String variedade = form.getVariedade().trim();
+
+            if (codigoVerificador <= 0) {
+                exibirAviso(modal, "O código identificador deve ser um número maior que zero!");
+                return;
+            }
+
+            if (variedade.matches(".*\\d.*")) {
+                exibirAviso(modal, "A variedade do peixe não pode conter números!");
+                return;
+            }
+
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             sdf.setLenient(false);
             Date dataEntrada = sdf.parse(form.getDataEntrada());
 
-            BigDecimal tamanhoCm = new BigDecimal(form.getTamanho().replace(".", "").replace(",", "."));
-            BigDecimal precoVenda = new BigDecimal(form.getPrecoVenda().replace(".", "").replace(",", "."));
+            // Validação: Data de entrada não pode ser posterior à data atual
+            if (dataEntrada.after(new Date())) {
+                exibirAviso(modal, "A data de entrada não pode exceder a data atual do cadastro!");
+                return;
+            }
+
+            BigDecimal tamanhoCm = new BigDecimal(form.getTamanho().replace(",", "."));
+            BigDecimal precoVenda = new BigDecimal(form.getPrecoVenda().replace(",", "."));
+
+            // Validação: Tamanho e Preço devem ser > 0
+            if (tamanhoCm.compareTo(BigDecimal.ZERO) <= 0) {
+                exibirAviso(modal, "O tamanho do peixe deve ser maior que zero!");
+                return;
+            }
+
+            if (precoVenda.compareTo(BigDecimal.ZERO) <= 0) {
+                exibirAviso(modal, "O preço de venda do peixe deve ser maior que zero!");
+                return;
+            }
+
             String status = form.getStatus();
             int idLago = Integer.parseInt(form.getIdLagoFk().trim());
 
-            // 3. Instanciação da classe de modelo
             Peixe peixe = new Peixe();
             peixe.setCodigoIdentificador(codigoVerificador);
             peixe.setVariedade(variedade);
@@ -51,10 +79,8 @@ public class FormController {
             peixe.setStatus(status);
             peixe.setIdLago(idLago);
 
-            // 4. Instanciação do DAO
             PeixeDAO dao = new PeixeDAO();
 
-            // 5. Verificação para Salvar ou Atualizar
             if (form.isEdicao()) {
                 peixe.setIdPeixe(form.getIdPeixeEmEdicao());
                 dao.atualizar(peixe);
@@ -64,117 +90,126 @@ public class FormController {
                 JOptionPane.showMessageDialog(modal, "Peixe cadastrado com sucesso!");
             }
 
-            // 6. Fechamento do modal
             modal.dispose();
 
         } catch (ParseException e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Data de entrada inválida! Utilize o formato dd/MM/yyyy.", 
-                "Erro na Data", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Data de entrada inválida! Utilize o formato dd/MM/yyyy.", "Erro na Data", JOptionPane.ERROR_MESSAGE);
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro de formatação! Verifique se Código, Tamanho, Preço e ID do Lago contêm valores numéricos válidos.", 
-                "Erro de Formatação", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Erro de formatação! Verifique se Código, Tamanho, Preço e ID do Lago contêm valores numéricos válidos.", "Erro de Formatação", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro de banco de dados ao salvar peixe: " + e.getMessage(), 
-                "Erro SQL", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            String msgError = e.getMessage().toLowerCase();
+            if (msgError.contains("duplicate") || msgError.contains("unique") || msgError.contains("key")) {
+                JOptionPane.showMessageDialog(modal, "Já existe um peixe cadastrado com este Código Identificador!", "Código Duplicado", JOptionPane.ERROR_MESSAGE);
+            } else if (msgError.contains("foreign key") || msgError.contains("foreign")) {
+                JOptionPane.showMessageDialog(modal, "O Lago informado (ID) não existe no banco de dados!", "Lago Não Encontrado", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(modal, "Erro de banco de dados ao salvar peixe: " + e.getMessage(), "Erro SQL", JOptionPane.ERROR_MESSAGE);
+            }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro inesperado ao salvar peixe: " + e.getMessage(), 
-                "Erro", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Erro inesperado ao salvar peixe: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
+    // =========================================================================
+    // 2. CLIENTE
+    // =========================================================================
     public void salvarCliente(FormCliente form, JDialog modal) {
-        // 1. Validação dos campos obrigatórios na tela
         if (!form.isCamposValidos()) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Por favor, preencha todos os campos obrigatórios!", 
-                "Aviso", 
-                JOptionPane.WARNING_MESSAGE
-            );
+            exibirAviso(modal, "Por favor, preencha todos os campos obrigatórios!");
             return;
         }
 
         try {
-            // 2. Cria o modelo e popula com as informações vindas da tela
-            Cliente cliente = new Cliente();
-            
-            cliente.setNome(form.getNome());
-            cliente.setCpfCnpj(form.getCpfCnpj());
-            cliente.setTelefone(form.getTelefone());
-            cliente.setEmail(form.getEmail());
-            cliente.setCidadeEstado(form.getCidadeEstado());
+            String nome = form.getNome().trim();
+            String cidadeEstado = form.getCidadeEstado().trim();
+            String cpfCnpj = form.getCpfCnpj().trim();
+            String telefone = form.getTelefone().trim();
 
-            // 3. Instancia o DAO de clientes
+            // Validação: Nome e Cidade não devem conter números
+            if (nome.matches(".*\\d.*")) {
+                exibirAviso(modal, "O nome do cliente não pode conter números!");
+                return;
+            }
+            if (cidadeEstado.matches(".*\\d.*")) {
+                exibirAviso(modal, "A cidade/estado não pode conter números!");
+                return;
+            }
+
+            // Validação: CPF/CNPJ e Telefone não devem conter letras
+            if (cpfCnpj.matches(".*[a-zA-Z].*")) {
+                exibirAviso(modal, "O CPF/CNPJ não pode conter letras!");
+                return;
+            }
+            if (telefone.matches(".*[a-zA-Z].*")) {
+                exibirAviso(modal, "O telefone não pode conter letras!");
+                return;
+            }
+
+            Cliente cliente = new Cliente();
+            cliente.setNome(nome);
+            cliente.setCpfCnpj(cpfCnpj);
+            cliente.setTelefone(telefone);
+            cliente.setEmail(form.getEmail().trim());
+            cliente.setCidadeEstado(cidadeEstado);
+
             ClientesDAO dao = new ClientesDAO();
 
-            // 4. Checa se é edição ou inserção
             if (form.isEdicao()) {
                 cliente.setIdCliente(form.getIdClienteEmEdicao());
                 dao.atualizar(cliente);
                 JOptionPane.showMessageDialog(modal, "Cliente atualizado com sucesso!");
             } else {
-                dao.salvar(cliente); // Chama o método 'inserir' do seu ClientesDAO
+                dao.salvar(cliente);
                 JOptionPane.showMessageDialog(modal, "Cliente cadastrado com sucesso!");
             }
 
-            // 5. Fecha a janela modal após salvar
             modal.dispose();
 
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro de banco de dados ao salvar o cliente: " + e.getMessage(), 
-                "Erro SQL", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Erro de banco de dados ao salvar o cliente: " + e.getMessage(), "Erro SQL", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro inesperado ao salvar cliente: " + e.getMessage(), 
-                "Erro", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Erro inesperado ao salvar cliente: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
+    // =========================================================================
+    // 3. INSUMO
+    // =========================================================================
     public void salvarInsumo(FormInsumo form, JDialog modal) {
-        // 1. Validação dos campos obrigatórios na tela
         if (!form.isCamposValidos()) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Por favor, preencha todos os campos obrigatórios!", 
-                "Aviso", 
-                JOptionPane.WARNING_MESSAGE
-            );
+            exibirAviso(modal, "Por favor, preencha todos os campos obrigatórios!");
             return;
         }
 
         try {
-            // 2. Extrai os dados do formulário e realiza as conversões numéricas para BigDecimal
-            String nome = form.getNomeInsumo();
+            String nome = form.getNomeInsumo().trim();
+
+            // Validação: Nome do insumo não pode conter números
+            if (nome.matches(".*\\d.*")) {
+                exibirAviso(modal, "O nome do insumo não pode conter números!");
+                return;
+            }
+
             BigDecimal qtdAtual = new BigDecimal(form.getQuantidadeAtualKg().replace(",", "."));
             BigDecimal qtdMinima = new BigDecimal(form.getQuantidadeMinimaAlerta().replace(",", "."));
             BigDecimal precoCusto = new BigDecimal(form.getPrecoCustoPorKg().replace(",", "."));
 
+            // Validação: Quantidades e Preço de Custo não podem ser <= 0
+            if (qtdAtual.compareTo(BigDecimal.ZERO) <= 0) {
+                exibirAviso(modal, "A quantidade atual deve ser maior que zero!");
+                return;
+            }
+            if (qtdMinima.compareTo(BigDecimal.ZERO) <= 0) {
+                exibirAviso(modal, "A quantidade mínima de alerta deve ser maior que zero!");
+                return;
+            }
+            if (precoCusto.compareTo(BigDecimal.ZERO) <= 0) {
+                exibirAviso(modal, "O preço de custo por Kg deve ser maior que zero!");
+                return;
+            }
+
             InsumoDAO dao = new InsumoDAO();
 
-            // 4. Verifica se é EDIÇÃO ou CADASTRAR
             if (form.isEdicao()) {
                 Insumo insumo = new Insumo(
                     form.getIdInsumoEmEdicao(),
@@ -187,205 +222,183 @@ public class FormController {
                 JOptionPane.showMessageDialog(modal, "Insumo atualizado com sucesso!");
             } else {
                 Insumo insumo = new Insumo(
-                    0, // ID zero ou ignorado no AUTO_INCREMENT
+                    0,
                     nome,
                     qtdAtual,
                     qtdMinima,
                     precoCusto
                 );
-                dao.salvar(insumo); // Chama 'cadastrar' conforme definido no seu DAO
+                dao.salvar(insumo);
                 JOptionPane.showMessageDialog(modal, "Insumo cadastrado com sucesso!");
             }
 
-            // 5. Fecha o modal
             modal.dispose();
-           
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro de formatação nos valores numéricos (Quantidade ou Preço). Verifique os valores digitados.", 
-                "Erro de Formatação", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Erro de formatação nos valores numéricos (Quantidade ou Preço). Verifique os valores digitados.", "Erro de Formatação", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro de banco de dados ao salvar o insumo: " + e.getMessage(), 
-                "Erro SQL", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Erro de banco de dados ao salvar o insumo: " + e.getMessage(), "Erro SQL", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro inesperado ao salvar insumo: " + e.getMessage(), 
-                "Erro", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Erro inesperado ao salvar insumo: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
+    // =========================================================================
+    // 4. ITEM VENDA
+    // =========================================================================
     public void salvarItemVenda(FormItemVenda form, JDialog modal) {
-        // 1. Validação dos campos obrigatórios
         if (!form.isCamposValidos()) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Por favor, preencha todos os campos obrigatórios!", 
-                "Aviso", 
-                JOptionPane.WARNING_MESSAGE
-            );
+            exibirAviso(modal, "Por favor, preencha todos os campos obrigatórios!");
             return;
         }
 
         try {
-            // 2. Extrai e converte os dados da tela
             BigDecimal precoPago = new BigDecimal(form.getPreco().replace(",", "."));
-            int idVenda = Integer.parseInt(form.getIdVendaFk());
-            int idPeixe = Integer.parseInt(form.getIdPeixeFk());
+            int idVenda = Integer.parseInt(form.getIdVendaFk().trim());
+            int idPeixe = Integer.parseInt(form.getIdPeixeFk().trim());
 
-            // 3. Popula o objeto de modelo
+            // Validação: Preço pago deve ser > 0
+            if (precoPago.compareTo(BigDecimal.ZERO) <= 0) {
+                exibirAviso(modal, "O preço pago pelo item deve ser maior que zero!");
+                return;
+            }
+
             ItemVenda item = new ItemVenda();
             item.setPrecoPago(precoPago);
             item.setIdVenda(idVenda);
             item.setIdPeixe(idPeixe);
 
-            // 4. Instancia o DAO
             ItensVendaDAO dao = new ItensVendaDAO();
 
-            // 5. Executa atualização ou inserção conforme o estado da tela
             if (form.isEdicao()) {
                 item.setIdItemVenda(form.getIdItemVendaEmEdicao());
                 dao.atualizar(item);
                 JOptionPane.showMessageDialog(modal, "Item de venda atualizado com sucesso!");
             } else {
-                dao.salvar(item); // Chama 'salvar' conforme definido no seu DAO
+                dao.salvar(item);
                 JOptionPane.showMessageDialog(modal, "Item de venda cadastrado com sucesso!");
             }
 
-            // 6. Fecha o modal
             modal.dispose();
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro de formatação! Verifique se os campos Preço, ID Venda e ID Peixe contêm números válidos.", 
-                "Erro de Formatação", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Erro de formatação! Verifique se os campos Preço, ID Venda e ID Peixe contêm números válidos.", "Erro de Formatação", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro de banco de dados ao salvar item de venda: " + e.getMessage(), 
-                "Erro SQL", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            String msgError = e.getMessage().toLowerCase();
+            if (msgError.contains("foreign key") || msgError.contains("foreign") || msgError.contains("constraint")) {
+                JOptionPane.showMessageDialog(modal, "Erro de Chave Estrangeira: A Venda ou o Peixe informado não existe no banco de dados!", "Erro de Vínculo", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(modal, "Erro de banco de dados ao salvar item de venda: " + e.getMessage(), "Erro SQL", JOptionPane.ERROR_MESSAGE);
+            }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro inesperado ao salvar item de venda: " + e.getMessage(), 
-                "Erro", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Erro inesperado ao salvar item de venda: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
+    // =========================================================================
+    // 5. LAGO
+    // =========================================================================
     public void salvarLago(FormLago form, JDialog modal) {
-        // 1. Validação dos campos obrigatórios
         if (!form.isCamposValidos()) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Por favor, preencha todos os campos obrigatórios!", 
-                "Aviso", 
-                JOptionPane.WARNING_MESSAGE
-            );
+            exibirAviso(modal, "Por favor, preencha todos os campos obrigatórios!");
             return;
         }
 
         try {
-            // 2. Extrai e converte os dados numéricos para BigDecimal
+            String tipo = form.getTipo().trim();
+            String statusAgua = form.getStatusAgua().trim();
+
+            // Validação: Tipo e Status d'água não devem conter números
+            if (tipo.matches(".*\\d.*")) {
+                exibirAviso(modal, "O tipo do lago não pode conter números!");
+                return;
+            }
+            if (statusAgua.matches(".*\\d.*")) {
+                exibirAviso(modal, "O status d'água não pode conter números!");
+                return;
+            }
+
             BigDecimal capacidade = new BigDecimal(form.getCapacidadeLitros().replace(",", "."));
             BigDecimal temperatura = new BigDecimal(form.getTemperatura().replace(",", "."));
 
-            // 3. Popula o modelo Lago
+            // Validação: Capacidade > 0 e Temperatura >= 0
+            if (capacidade.compareTo(BigDecimal.ZERO) <= 0) {
+                exibirAviso(modal, "A capacidade do lago deve ser maior que zero!");
+                return;
+            }
+            if (temperatura.compareTo(BigDecimal.ZERO) < 0) {
+                exibirAviso(modal, "A temperatura do lago não pode ser negativa!");
+                return;
+            }
+
             Lago lago = new Lago();
-            lago.setNomeLago(form.getNomeLago());
+            lago.setNomeLago(form.getNomeLago().trim());
             lago.setCapacidadeLitros(capacidade);
-            lago.setTipo(form.getTipo());
-            lago.setStatusAgua(form.getStatusAgua());
+            lago.setTipo(tipo);
+            lago.setStatusAgua(statusAgua);
             lago.setTemperatura(temperatura);
 
-            // 4. Instancia o LagoDAO (utiliza ConexaoDB no construtor padrão)
             LagoDAO dao = new LagoDAO();
 
-            // 5. Verifica se é edição ou inserção
             if (form.isEdicao()) {
                 lago.setIdLago(form.getIdLagoEmEdicao());
                 dao.atualizar(lago);
                 JOptionPane.showMessageDialog(modal, "Lago atualizado com sucesso!");
             } else {
-                dao.salvar(lago); // Chama 'salvar' do LagoDAO
+                dao.salvar(lago);
                 JOptionPane.showMessageDialog(modal, "Lago cadastrado com sucesso!");
             }
 
-            // 6. Fecha o modal após o salvamento
             modal.dispose();
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro de formatação! Verifique se Capacidade e Temperatura contêm valores numéricos válidos.", 
-                "Erro de Formatação", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Erro de formatação! Verifique se Capacidade e Temperatura contêm valores numéricos válidos.", "Erro de Formatação", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro de banco de dados ao salvar o lago: " + e.getMessage(), 
-                "Erro SQL", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Erro de banco de dados ao salvar o lago: " + e.getMessage(), "Erro SQL", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro inesperado ao salvar lago: " + e.getMessage(), 
-                "Erro", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Erro inesperado ao salvar lago: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
+    // =========================================================================
+    // 6. MOVIMENTAÇÃO
+    // =========================================================================
     public void salvarMovimentacao(FormMovimentacao form, JDialog modal) {
-        // 1. Validação dos campos obrigatórios da tela
         if (!form.isCamposValidos()) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Por favor, preencha todos os campos obrigatórios!", 
-                "Aviso", 
-                JOptionPane.WARNING_MESSAGE
-            );
+            exibirAviso(modal, "Por favor, preencha todos os campos obrigatórios!");
             return;
         }
 
         try {
-            // 2. Tratamento e conversão dos dados
+            String categoria = form.getCategoria().trim();
+
+            // Validação: Categoria não pode conter números
+            if (categoria.matches(".*\\d.*")) {
+                exibirAviso(modal, "A categoria da movimentação não pode conter números!");
+                return;
+            }
+
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-            sdf.setLenient(false); // Validação estrita de data
+            sdf.setLenient(false);
             Date dataMovimentacao = sdf.parse(form.getDataMovimentacao());
 
-            BigDecimal valor = new BigDecimal(form.getValor().replace(".", "").replace(",", "."));
-            String categoria = form.getCategoria();
+            BigDecimal valor = new BigDecimal(form.getValor().replace(",", "."));
+
+            // Validação: Valor > 0
+            if (valor.compareTo(BigDecimal.ZERO) <= 0) {
+                exibirAviso(modal, "O valor da movimentação deve ser maior que zero!");
+                return;
+            }
+
             String descricao = form.getDescricao();
 
-            // ID do insumo opcional (0 se não preenchido)
             int idInsumo = 0;
             if (form.getIdInsumoFk() != null && !form.getIdInsumoFk().trim().isEmpty()) {
                 idInsumo = Integer.parseInt(form.getIdInsumoFk().trim());
             }
 
-            // 3. Instancia o DAO diretamente
             MovimentacaoDAO dao = new MovimentacaoDAO();
 
-            // 4. Salvar ou Atualizar
             if (form.isEdicao()) {
                 Movimentacao mov = new Movimentacao(
                     form.getIdMovimentacaoEmEdicao(),
@@ -399,7 +412,7 @@ public class FormController {
                 JOptionPane.showMessageDialog(modal, "Movimentação atualizada com sucesso!");
             } else {
                 Movimentacao mov = new Movimentacao(
-                    0, // ID gerado pelo AUTO_INCREMENT do banco
+                    0,
                     dataMovimentacao,
                     valor,
                     categoria,
@@ -410,68 +423,57 @@ public class FormController {
                 JOptionPane.showMessageDialog(modal, "Movimentação registrada com sucesso!");
             }
 
-            // 5. Encerra o modal
             modal.dispose();
 
         } catch (ParseException e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Data inválida! Por favor, utilize o formato dd/MM/yyyy.", 
-                "Erro na Data", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Data inválida! Por favor, utilize o formato dd/MM/yyyy.", "Erro na Data", JOptionPane.ERROR_MESSAGE);
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro de formatação nos valores numéricos (Valor ou ID Insumo). Verifique os campos digitados.", 
-                "Erro de Formatação", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Erro de formatação nos valores numéricos (Valor ou ID Insumo). Verifique os campos digitados.", "Erro de Formatação", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro de banco de dados ao salvar a movimentação: " + e.getMessage(), 
-                "Erro SQL", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Erro de banco de dados ao salvar a movimentação: " + e.getMessage(), "Erro SQL", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro inesperado ao salvar movimentação: " + e.getMessage(), 
-                "Erro", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Erro inesperado ao salvar movimentação: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
+    // =========================================================================
+    // 7. VENDA
+    // =========================================================================
     public void salvarVenda(FormVenda form, JDialog modal) {
-        // 1. Validação dos campos obrigatórios da tela
         if (!form.isCamposValidos()) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Por favor, preencha todos os campos obrigatórios!", 
-                "Aviso", 
-                JOptionPane.WARNING_MESSAGE
-            );
+            exibirAviso(modal, "Por favor, preencha todos os campos obrigatórios!");
             return;
         }
 
         try {
-            // 2. Tratamento e conversão dos dados (Corrigido para o formato AAAA-MM-DD do FormVenda)
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String formaPagamento = form.getFormaPagamento().trim();
+            String statusEntrega = form.getStatusEntrega().trim();
+
+            // Validação: Forma de pagamento e Status não podem conter números
+            if (formaPagamento.matches(".*\\d.*")) {
+                exibirAviso(modal, "A forma de pagamento não pode conter números!");
+                return;
+            }
+            if (statusEntrega.matches(".*\\d.*")) {
+                exibirAviso(modal, "O status da entrega não pode conter números!");
+                return;
+            }
+
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             sdf.setLenient(false);
             java.util.Date dataUtil = sdf.parse(form.getDataVenda());
-            // Se o seu VendaDAO usar java.sql.Date, você pode converter assim:
             java.sql.Date dataVenda = new java.sql.Date(dataUtil.getTime());
 
-            // Corrigido: O FormVenda.getValorTotal() já converte vírgula para ponto.
             BigDecimal valorTotal = new BigDecimal(form.getValorTotal());
-            
-            String formaPagamento = form.getFormaPagamento();
-            String statusEntrega = form.getStatusEntrega();
-            int idCliente = Integer.parseInt(form.getIdClienteFk());
 
-            // 3. Montagem do modelo Venda
+            // Validação: Valor total > 0
+            if (valorTotal.compareTo(BigDecimal.ZERO) <= 0) {
+                exibirAviso(modal, "O valor total da venda deve ser maior que zero!");
+                return;
+            }
+
+            int idCliente = Integer.parseInt(form.getIdClienteFk().trim());
+
             Venda venda = new Venda();
             venda.setDataVenda(dataVenda);
             venda.setValorTotal(valorTotal);
@@ -479,10 +481,8 @@ public class FormController {
             venda.setStatusEntrega(statusEntrega);
             venda.setIdCliente(idCliente);
 
-            // 4. Instancia o DAO
             VendaDAO dao = new VendaDAO();
 
-            // 5. Edição vs Novo Cadastro
             if (form.isEdicao()) {
                 venda.setIdVenda(form.getIdVendaEmEdicao());
                 dao.atualizar(venda);
@@ -492,37 +492,21 @@ public class FormController {
                 JOptionPane.showMessageDialog(modal, "Venda registrada com sucesso! (ID: " + idGerado + ")");
             }
 
-            // 6. Encerra o modal
             modal.dispose();
 
         } catch (ParseException e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Data de venda inválida! Utilize o formato AAAA-MM-DD (Ex: 2024-12-31).", 
-                "Erro na Data", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Data de venda inválida! Utilize o formato AAAA-MM-DD (Ex: 2026-12-31).", "Erro na Data", JOptionPane.ERROR_MESSAGE);
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro nos valores numéricos (Valor Total ou ID do Cliente). Verifique os campos digitados.", 
-                "Erro de Formatação", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Erro nos valores numéricos (Valor Total ou ID do Cliente). Verifique os campos digitados.", "Erro de Formatação", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro de banco de dados ao salvar a venda: " + e.getMessage(), 
-                "Erro SQL", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            String msgError = e.getMessage().toLowerCase();
+            if (msgError.contains("foreign key") || msgError.contains("foreign") || msgError.contains("constraint")) {
+                JOptionPane.showMessageDialog(modal, "O Cliente informado (ID) não existe no banco de dados!", "Cliente Não Encontrado", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(modal, "Erro de banco de dados ao salvar a venda: " + e.getMessage(), "Erro SQL", JOptionPane.ERROR_MESSAGE);
+            }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(
-                modal, 
-                "Erro inesperado ao salvar venda: " + e.getMessage(), 
-                "Erro", 
-                JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(modal, "Erro inesperado ao salvar venda: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

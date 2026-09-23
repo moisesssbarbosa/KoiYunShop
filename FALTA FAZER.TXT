@@ -1,5 +1,0 @@
-colocar um jcombo na merda da bosta da variedade dos peixe
-
-formato invalido de data na hora de inserir um novo peixe
-
-criar pasta no projeto com as imagens do peixe
