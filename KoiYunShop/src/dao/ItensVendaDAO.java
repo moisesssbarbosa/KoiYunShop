@@ -23,7 +23,7 @@ public class ItensVendaDAO {
     public void salvar(ItemVenda item, int codigoIdentificadorPeixe) throws SQLException {
         // O sub-select (SELECT id_peixe FROM peixes WHERE codigo_identificador = ?) busca a FK automaticamente
         String sql = "INSERT INTO itens_venda (preco, id_venda_fk, id_peixe_fk) " +
-                     "VALUES (?, ?, (SELECT id_peixe FROM peixes WHERE codigo_identificador = ?))";
+                     "VALUES (?, ?, (SELECT id_peixe FROM peixes WHERE codigo_verificador = ?))";
 
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setBigDecimal(1, item.getPrecoPago());
@@ -37,7 +37,7 @@ public class ItensVendaDAO {
     // 2. ATUALIZAR (Update) usando o código identificador
     public void atualizar(ItemVenda item, int codigoIdentificadorPeixe) throws SQLException {
         String sql = "UPDATE itens_venda SET preco = ?, id_venda_fk = ?, " +
-                     "id_peixe_fk = (SELECT id_peixe FROM peixes WHERE codigo_identificador = ?) " +
+                     "id_peixe_fk = (SELECT id_peixe FROM peixes WHERE codigo_verificador = ?) " +
                      "WHERE id_item_venda = ?";
 
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
