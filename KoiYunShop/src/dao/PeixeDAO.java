@@ -38,7 +38,7 @@ public class PeixeDAO {
 
     // Verifica se já existe um peixe cadastrado com o mesmo código
     public boolean existeCodigoIdentificador(int codigoIdentificador) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM peixes WHERE codigo_identificador = ?";
+        String sql = "SELECT COUNT(*) FROM peixes WHERE codigo_verificador = ?";
 
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setInt(1, codigoIdentificador);
@@ -54,7 +54,7 @@ public class PeixeDAO {
 
     // Sobrecarga para uso no modo EDIÇÃO (ignora o próprio peixe)
     public boolean existeCodigoIdentificador(int codigoIdentificador, int idPeixeAtual) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM peixes WHERE codigo_identificador = ? AND id_peixe != ?";
+        String sql = "SELECT COUNT(*) FROM peixes WHERE codigo_verificador = ? AND id_peixe != ?";
 
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setInt(1, codigoIdentificador);
