@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class ConexaoDB {
 
     // Configurações do seu banco de dados
-    private static final String URL = "jdbc:postgresql://localhost:5432/koiyunshop";
+    private static final String URL = "jdbc:postgresql://localhost:5432/KoiYunShop";
     private static final String USUARIO = "postgres";
     private static final String SENHA = "1234";
 

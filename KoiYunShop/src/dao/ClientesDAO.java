@@ -63,7 +63,7 @@ public class ClientesDAO {
         List<Cliente> lista = new ArrayList<>();
 
         try (PreparedStatement stmt = conexao.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+            ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 lista.add(mapearCliente(rs));
@@ -90,7 +90,7 @@ public class ClientesDAO {
 
     // Verifica se o CPF já existe (Usado para NOVO CADASTRO)
     public boolean existeCpf(String cpf) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM clientes WHERE cpf = ?";
+        String sql = "SELECT COUNT(*) FROM clientes WHERE cpf_cnpj = ?";
 
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, cpf);
